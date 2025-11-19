@@ -6,19 +6,18 @@
     <title>App de intervalos</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100">
     
-    <body class="bg-slate-900 text-slate-100">
-        
-        <nav class="p-4 flex gap-4">
-            <a href="/" data-link>Timer</a>
-            <a href="/presets" data-link>Presets</a>
-            <a href="/stats" data-link>Stats</a>
-            <a href="/settings" data-link>Settings</a>
-        </nav>
+    <nav class="p-4 flex gap-4">
+        <a href="/" data-link>Timer</a>
+        <a href="/presets" data-link>Presets</a>
+        <a href="/stats" data-link>Stats</a>
+        <a href="/settings" data-link>Settings</a>
+    </nav>
+    
+    <main class="max-w-3xl mx-auto px-4 py-6">
         <div id="app"></div>
-
-    </body>
+    </main>
 
     <script type="module" src="./src/main.js"></script>
 
