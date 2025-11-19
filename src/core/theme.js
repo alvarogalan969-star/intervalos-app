@@ -22,14 +22,14 @@ function applyThemeToDocument(theme) {
 function applyModeToDocument(mode) {
   const body = document.body;
 
-  body.classList.remove("mode-trabajo", "mode-estudio", "mode-deporte");
+  body.classList.remove("mode-trabajo", "mode-estudio", "mode-deporte", "mode-neutral");
   body.classList.add(`mode-${mode}`);
 }
 
 export function applyInitialTheme() {
   const settings = getSettings();
   const theme = settings.theme || "dark";
-  const mode = settings.activeMode || "trabajo";
+  const mode = settings.activeMode || "neutral";
   applyThemeToDocument(theme);
   applyModeToDocument(mode);
 }
@@ -50,5 +50,5 @@ export function updateActiveMode(mode) {
 
 export function getActiveMode() {
   const settings = getSettings();
-  return settings.activeMode || "trabajo";
+  return settings.activeMode || "neutral";
 }

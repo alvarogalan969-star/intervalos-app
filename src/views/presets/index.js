@@ -1,4 +1,7 @@
 import { getPresets } from "../../core/storage.js";
+import { getAccentClasses } from "../../core/modeStyle.js";
+
+const { bg, shadow, tag } = getAccentClasses();
 
 function presetColor(type) {
   if (type === "trabajo") return "bg-blue-600/20 text-blue-300";
@@ -18,7 +21,7 @@ export function PresetsView() {
         .join(" · ");
 
       return `
-        <div class="flex items-center justify-between p-3 bg-slate-900 rounded">
+        <div class="flex items-center justify-between p-3 bg-slate-900 rounded ${shadow}">
           <div>
             <div class="font-medium">${preset.nombre}</div>
             <div class="text-xs text-slate-400">${detalles}</div>
@@ -36,7 +39,7 @@ export function PresetsView() {
     <div class="space-y-6">
       <h1 class="text-2xl font-semibold text-center">Presets</h1>
 
-      <button data-link href="/presets/new" class="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded">
+      <button data-link href="/presets/new" class="w-full px-4 py-2 ${bg} ${shadow} rounded">
         Crear preset
       </button>
 

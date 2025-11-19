@@ -33,9 +33,9 @@ const DEFAULT_PRESETS = [
 
 const DEFAULT_SETTINGS = {
   theme: "dark",
+  activeMode: "deporte",
   soundsEnabled: true,
   notificationsEnabled: false,
-  defaultMode: "trabajo",
   timeUnit: "minutes",
   sounds: {
     trabajo: "work_beep_1",
