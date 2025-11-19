@@ -3,8 +3,14 @@ import { PresetsView } from "./views/presets/index.js";
 import { StatsView } from "./views/stats/index.js";
 import { SettingsView } from "./views/settings/index.js";
 import { CreatePresetView } from "./views/presets/create.js";
+import { EditPresetView } from "./views/presets/edit.js";
 import { applyInitialTheme, updateTheme } from "./core/theme.js";
-import { getPresets, savePresets } from "./core/storage.js";
+import {
+  getPresets,
+  savePresets,
+  updatePreset,
+  deletePreset,
+} from "./core/storage.js";
 
 const routes = {
   "/": TimerView,
@@ -15,9 +21,20 @@ const routes = {
 };
 
 function render() {
-  const path = routes[window.location.pathname] ? window.location.pathname : "/";
-  const view = routes[path]();
-  document.getElementById("app").innerHTML = view;
+  const path = window.location.pathname;
+  const app = document.getElementById("app");
+
+  // 1) Ruta dinámica: /presets/:id/edit
+  if (path.startsWith("/presets/") && path.endsWith("/edit")) {
+    const parts = path.split("/"); // ["", "presets", ":id", "edit"]
+    const id = parts[2];
+    app.innerHTML = EditPresetView({ id });
+    return;
+  }
+
+  // 2) Rutas normales
+  const viewFn = routes[path] || TimerView;
+  app.innerHTML = viewFn();
 }
 
 export function navigate(path) {
@@ -108,5 +125,51 @@ document.addEventListener("submit", (event) => {
   };
 
   savePresets([...presets, nuevoPreset]);
+  navigate("/presets");
+});
+
+document.addEventListener("submit", (event) => {
+  const form = event.target;
+  if (!form.matches('[data-form="edit-preset"]')) return;
+
+  event.preventDefault();
+
+  const ok = confirm("¿Quieres guardar los cambios de este preset?");
+  if (!ok) return;
+
+  const id = Number(form.id.value);
+  const nombre = form.nombre.value.trim();
+  const tipo = form.tipo.value;
+  const actividad = Number(form.actividad.value);
+  const descanso = Number(form.descanso.value);
+  const unidad = form.unidad.value || "minutes";
+
+  const updatedPreset = {
+    id,
+    nombre,
+    tipo,
+    intervalos: [
+      { duracion: actividad, modo: tipo, unidad },
+      { duracion: descanso || 0, modo: "descanso", unidad },
+    ],
+  };
+
+  updatePreset(updatedPreset);
+  navigate("/presets");
+});
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#delete-preset");
+  if (!btn) return;
+
+  event.preventDefault();
+
+  const ok = confirm("¿Seguro que quieres eliminar este preset? Esta acción no se puede deshacer.");
+  if (!ok) return;
+
+  const form = btn.closest("form");
+  const id = Number(form.id.value);
+
+  deletePreset(id);
   navigate("/presets");
 });

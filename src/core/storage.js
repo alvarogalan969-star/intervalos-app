@@ -33,7 +33,7 @@ const DEFAULT_PRESETS = [
 
 const DEFAULT_SETTINGS = {
   theme: "dark",
-  activeMode: "deporte",
+  activeMode: "trabajo",
   soundsEnabled: true,
   notificationsEnabled: false,
   timeUnit: "minutes",
@@ -80,4 +80,24 @@ export function getSettings() {
 
 export function saveSettings(settings) {
   saveJSON(SETTINGS_KEY, settings);
+}
+
+export function getPresetById(id) {
+  const presets = getPresets();
+  const numericId = Number(id);
+  return presets.find((p) => p.id === numericId) || null;
+}
+
+export function updatePreset(updated) {
+  const presets = getPresets();
+  const newPresets = presets.map((p) =>
+    p.id === updated.id ? updated : p
+  );
+  savePresets(newPresets);
+}
+
+export function deletePreset(id) {
+  const presets = getPresets();
+  const newPresets = presets.filter((p) => p.id !== id);
+  savePresets(newPresets);
 }
