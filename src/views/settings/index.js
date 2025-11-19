@@ -3,12 +3,30 @@ export function SettingsView() {
     <div class="space-y-6">
       <h1 class="text-2xl font-semibold text-center">Settings</h1>
 
-      <div class="space-y-4">
-
-        <div class="p-4 bg-slate-800 rounded">
+      <!-- Selector de tema -->
+      <div class="p-4 bg-slate-800 rounded flex items-center justify-between">
+        <div>
           <div class="font-medium">Tema</div>
-          <div class="text-sm text-slate-400">Oscuro (por defecto)</div>
+          <div class="text-sm text-slate-400">Claro u oscuro</div>
         </div>
+        <div class="flex gap-2">
+          <button
+            data-theme="light"
+            class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+          >
+            Claro
+          </button>
+          <button
+            data-theme="dark"
+            class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+          >
+            Oscuro
+          </button>
+        </div>
+      </div>
+
+      <!-- Resto de ajustes como los tenías en la opción A -->
+      <div class="space-y-4">
 
         <div class="p-4 bg-slate-800 rounded">
           <div class="font-medium">Sonidos</div>
