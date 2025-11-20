@@ -73,6 +73,17 @@ export function CreatePresetView() {
           />
         </div>
 
+        <div class="flex gap-3">
+          <input
+            type="number"
+            name="bloques"
+            placeholder="N1 de intervalos"
+            class="px-3 py-2 rounded bg-slate-900 border border-slate-700 w-full"
+            min="1"
+            value="1"
+          />
+        </div>
+
         <!-- Guardar -->
         <button
           type="submit"

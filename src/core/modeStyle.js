@@ -29,8 +29,8 @@ export function getAccentClasses() {
 
   // modo neutral
   return {
-    bg: "",
-    shadow: "",
-    tag: "",
+    bg: "bg-slate-800 hover:bg-slate-700",
+    shadow: "shadow shadow-white/40",         
+    tag: "bg-slate-700/40 text-slate-100",
   };
 }

@@ -1,8 +1,6 @@
 import { getPresets } from "../../core/storage.js";
 import { getAccentClasses } from "../../core/modeStyle.js";
 
-const { bg, shadow, tag } = getAccentClasses();
-
 function presetColor(type) {
   if (type === "trabajo") return "bg-blue-600/20 text-blue-300";
   if (type === "estudio") return "bg-emerald-600/20 text-emerald-300";
@@ -19,6 +17,9 @@ function formatDuration(duracion, unidad) {
 }
 
 export function PresetsView() {
+
+  const { bg, shadow, tag } = getAccentClasses();
+
   const presets = getPresets();
 
   const items = presets
@@ -39,12 +40,20 @@ export function PresetsView() {
         .join('<span class="mx-1 text-slate-600">·</span>');
 
       return `
-        <div class="flex items-center justify-between p-3 bg-slate-900 rounded ${shadow}">
+        <div class="flex items-center justify-between p-3 bg-slate-900 rounded ${shadow} transition-colors duration-500">
           <div>
             <div class="font-medium">${preset.nombre}</div>
             <div class="text-xs text-slate-400">${detalles}</div>
           </div>
           <div class="flex items-center gap-2">
+
+            <button
+              data-use-preset
+              data-preset-id="${preset.id}"
+              class="px-2 py-1 text-xs rounded border border-slate-600 text-slate-200 hover:bg-slate-700"
+            >
+              Play
+            </button>
 
             <span class="px-2 py-1 text-xs rounded ${colorClass}">
               ${preset.tipo}
@@ -65,7 +74,7 @@ export function PresetsView() {
     .join("");
 
   return `
-    <div class="space-y-6">
+    <div class="space-y-6 transition-colors duration-500">
       <h1 class="text-2xl font-semibold text-center">Presets</h1>
 
       <button data-link href="/presets/new" class="w-full px-4 py-2 ${bg} ${shadow} rounded">

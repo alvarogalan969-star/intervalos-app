@@ -1,5 +1,6 @@
 const PRESETS_KEY = "intervalos_presets";
 const SETTINGS_KEY = "intervalos_settings";
+const STATS_KEY = "intervalos_stats";
 
 const DEFAULT_PRESETS = [
   {
@@ -33,7 +34,7 @@ const DEFAULT_PRESETS = [
 
 const DEFAULT_SETTINGS = {
   theme: "dark",
-  activeMode: "trabajo",
+  activeMode: "neutral",
   soundsEnabled: true,
   notificationsEnabled: false,
   timeUnit: "minutes",
@@ -44,6 +45,17 @@ const DEFAULT_SETTINGS = {
     descanso: "break_bell_1",
     volume: 0.8,
     muted: false,
+  },
+};
+
+const DEFAULT_STATS = {
+  byDay: {
+    // "2025-11-20": { totalMs: 0, sessions: 0 }
+  },
+  streak: {
+    current: 0,
+    best: 0,
+    lastDay: null, // "2025-11-20"
   },
 };
 
@@ -80,6 +92,18 @@ export function getSettings() {
 
 export function saveSettings(settings) {
   saveJSON(SETTINGS_KEY, settings);
+}
+
+export function getStats() {
+  return loadJSON(STATS_KEY, DEFAULT_STATS);
+}
+
+export function saveStats(stats) {
+  saveJSON(STATS_KEY, stats);
+}
+
+export function resetStats() {
+  saveJSON(STATS_KEY, DEFAULT_STATS);
 }
 
 export function getPresetById(id) {

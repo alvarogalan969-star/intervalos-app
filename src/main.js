@@ -4,13 +4,89 @@ import { StatsView } from "./views/stats/index.js";
 import { SettingsView } from "./views/settings/index.js";
 import { CreatePresetView } from "./views/presets/create.js";
 import { EditPresetView } from "./views/presets/edit.js";
-import { applyInitialTheme, updateTheme } from "./core/theme.js";
+import { applyInitialTheme, updateTheme, updateActiveMode } from "./core/theme.js";
 import {
   getPresets,
   savePresets,
   updatePreset,
   deletePreset,
+  getSettings,
+  saveSettings,
+  getStats,
+  saveStats,
+  resetStats,  
 } from "./core/storage.js";
+import {
+  startTimer,
+  loadPresetToTimer,
+  stopTimer,
+  resetTimer,
+  subscribeToTimer,
+  timerState,
+} from "./core/timerState.js";
+
+let lastIntervalIndex = null;
+
+function handleIntervalChangeAnimation() {
+  const display = document.getElementById("timer-display");
+  if (!display) return;
+
+  display.classList.add("animate-pulse");
+  setTimeout(() => {
+    display.classList.remove("animate-pulse");
+  }, 300);
+}
+
+function syncActiveModeWithCurrentInterval() {
+  // Sin preset (no hay intervalos) → neutral, sin sombra
+  if (!timerState.intervals || timerState.intervals.length === 0) {
+    updateActiveMode("neutral");
+    return;
+  }
+
+  // Con preset → usamos SIEMPRE el modo base del preset
+  const base = timerState.baseMode || "trabajo";
+  updateActiveMode(base);
+}
+
+function formatMsToMMSS(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0")
+  );
+}
+
+function animateShadowBeat() {
+  const body = document.body;
+
+  // solo en la página Timer
+  if (!body.classList.contains("page-timer")) return;
+
+  if (!timerState.intervals || timerState.intervals.length === 0) return;
+
+  body.classList.add("shadow-beat");
+  setTimeout(() => body.classList.remove("shadow-beat"), 900);
+}
+
+function updateTimerDisplayFromState() {
+  const display = document.getElementById("timer-display");
+  if (!display) return;
+
+  display.textContent = formatMsToMMSS(timerState.remainingMs);
+}
+
+subscribeToTimer(() => {
+  updateTimerDisplayFromState();
+  syncActiveModeWithCurrentInterval();
+  if (timerState.status === "running") {
+    animateShadowBeat();
+  }
+});
 
 const routes = {
   "/": TimerView,
@@ -23,6 +99,12 @@ const routes = {
 function render() {
   const path = window.location.pathname;
   const app = document.getElementById("app");
+
+  const body = document.body;
+  body.classList.remove("page-timer");
+  if (path === "/") {
+    body.classList.add("page-timer");
+  }
 
   // 1) Ruta dinámica: /presets/:id/edit
   if (path.startsWith("/presets/") && path.endsWith("/edit")) {
@@ -104,10 +186,36 @@ document.addEventListener("submit", (event) => {
   const actividad = Number(form.actividad.value);
   const descanso = Number(form.descanso.value);
   const unidad = form.unidad.value || "minutes";
+  const bloques = Number(form.bloques.value) || 1;
+
+  if (bloques <= 0) {
+    alert("El número de bloques debe ser al menos 1.");
+    return;
+  }
 
   if (!nombre || !actividad || actividad <= 0) {
     alert("Introduce al menos un nombre y una duración de actividad.");
     return;
+  }
+
+  const intervalos = [];
+
+  for (let i = 0; i < bloques; i++) {
+    // bloque de actividad
+    intervalos.push({
+      duracion: actividad,
+      modo: tipo,
+      unidad,
+    });
+
+    // si no es el último bloque, añadimos descanso
+    if (i < bloques - 1 && descanso > 0) {
+      intervalos.push({
+        duracion: descanso,
+        modo: "descanso",
+        unidad,
+      });
+    }
   }
 
   const presets = getPresets();
@@ -118,10 +226,7 @@ document.addEventListener("submit", (event) => {
     id: newId,
     nombre,
     tipo,
-    intervalos: [
-      { duracion: actividad, modo: tipo, unidad },
-      { duracion: descanso || 0, modo: "descanso", unidad },
-    ],
+    intervalos,
   };
 
   savePresets([...presets, nuevoPreset]);
@@ -173,3 +278,52 @@ document.addEventListener("click", (event) => {
   deletePreset(id);
   navigate("/presets");
 });
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#timer-start");
+  if (!btn) return;
+
+  event.preventDefault();
+  startTimer();
+});
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#timer-stop");
+  if (!btn) return;
+
+  event.preventDefault();
+  stopTimer();
+});
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#timer-reset");
+  if (!btn) return;
+
+  event.preventDefault();
+  resetTimer();
+});
+
+document.addEventListener("click", (event) => {
+  const useBtn = event.target.closest("[data-use-preset]");
+  if (!useBtn) return;
+
+  event.preventDefault();
+  const presetId = Number(useBtn.getAttribute("data-preset-id"));
+  loadPresetToTimer(presetId);
+  navigate("/");
+  startTimer();
+});
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#stats-reset");
+  if (!btn) return;
+
+  event.preventDefault();
+
+  const ok = confirm("¿Seguro que quieres reiniciar todas las estadísticas?");
+  if (!ok) return;
+
+  resetStats();
+  navigate("/stats"); // recarga la vista con todo a cero
+});
+

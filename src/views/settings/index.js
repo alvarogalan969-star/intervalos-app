@@ -3,12 +3,15 @@ import { getAccentClasses } from "../../core/modeStyle.js";
 const { bg, shadow } = getAccentClasses();
 
 export function SettingsView() {
+
+  const { bg, shadow } = getAccentClasses();
+
   return `
-    <div class="space-y-6">
+    <div class="space-y-6 transition-colors duration-500">
       <h1 class="text-2xl font-semibold text-center">Settings</h1>
 
       <!-- Selector de tema -->
-      <div class="p-4 bg-slate-800 rounded flex items-center justify-between ${shadow}">
+      <div class="p-4 bg-slate-800 rounded flex items-center justify-between ${shadow} ">
         <div>
           <div class="font-medium">Tema</div>
           <div class="text-sm text-slate-400">Claro u oscuro</div>
