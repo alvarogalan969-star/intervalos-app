@@ -4,7 +4,7 @@ import { StatsView } from "./views/stats/index.js";
 import { SettingsView } from "./views/settings/index.js";
 import { CreatePresetView } from "./views/presets/create.js";
 import { EditPresetView } from "./views/presets/edit.js";
-import { applyInitialTheme, updateTheme, updateActiveMode } from "./core/theme.js";
+import { applyInitialTheme, updateTheme, updateActiveMode, getActiveMode } from "./core/theme.js";
 import {
   getPresets,
   savePresets,
@@ -25,7 +25,43 @@ import {
   timerState,
 } from "./core/timerState.js";
 
-let lastIntervalIndex = null;
+let lastAppliedMode = null;
+let circle = null;
+let lastIntervalIndex = timerState.currentIntervalIndex ?? 0;
+
+function updateTimerCircleFromState() {
+  if (!circle) return;
+
+  const current = timerState.intervals[timerState.currentIntervalIndex];
+  if (!current) {
+    circle.set(0);
+    return;
+  }
+
+  // duración total del intervalo actual
+  const unit = current.unidad || "minutes";
+  const base =
+    unit === "seconds" ? 1000 :
+    unit === "hours" ? 3600 * 1000 :
+    60 * 1000;
+
+  const totalMs = current.duracion * base;
+  const remaining = timerState.remainingMs;
+
+  if (!totalMs || totalMs <= 0) {
+    circle.set(0);
+    return;
+  }
+
+  const progress = 1 - Math.max(remaining, 0) / totalMs;
+  circle.set(progress);
+}
+
+function updateTimerMessageFromState() {
+  const el = document.getElementById("timer-status-message");
+  if (!el) return;
+  el.textContent = timerState.statusMessage || "";
+}
 
 function handleIntervalChangeAnimation() {
   const display = document.getElementById("timer-display");
@@ -38,15 +74,21 @@ function handleIntervalChangeAnimation() {
 }
 
 function syncActiveModeWithCurrentInterval() {
+
+  let newMode;
   // Sin preset (no hay intervalos) → neutral, sin sombra
   if (!timerState.intervals || timerState.intervals.length === 0) {
-    updateActiveMode("neutral");
-    return;
+    newMode = "neutral";
+  } else {
+    // Con preset → siempre el modo base (trabajo / estudio / deporte)
+    newMode = timerState.baseMode || "trabajo";
   }
 
-  // Con preset → usamos SIEMPRE el modo base del preset
-  const base = timerState.baseMode || "trabajo";
-  updateActiveMode(base);
+   if (newMode === lastAppliedMode) return;
+
+  lastAppliedMode = newMode;
+  updateActiveMode(newMode); // cambia clases del body (mode-*)
+  render(); 
 }
 
 function formatMsToMMSS(ms) {
@@ -81,8 +123,21 @@ function updateTimerDisplayFromState() {
 }
 
 subscribeToTimer(() => {
+  const previousIndex = lastIntervalIndex;
+  const currentIndex = timerState.currentIntervalIndex ?? 0;
+  const intervalChanged = currentIndex !== previousIndex;
+  lastIntervalIndex = currentIndex;
+
   updateTimerDisplayFromState();
+  updateTimerMessageFromState();
   syncActiveModeWithCurrentInterval();
+  updateTimerCircleFromState();
+  updateTimerCircleColor();
+
+  if (intervalChanged) {
+    render();
+  }
+
   if (timerState.status === "running") {
     animateShadowBeat();
   }
@@ -117,6 +172,59 @@ function render() {
   // 2) Rutas normales
   const viewFn = routes[path] || TimerView;
   app.innerHTML = viewFn();
+
+  if (path === "/") {
+    setTimeout(() => {
+      initTimerCircle();
+      updateTimerCircleFromState(); // refrescar progreso inicial
+    }, 20);
+  }
+}
+
+function initTimerCircle() {
+  const container = document.getElementById("timer-circle");
+  if (!container) {
+    circle = null;
+    return;
+  }
+
+  // Destruir círculo previo si la vista se vuelve a renderizar
+  container.innerHTML = "";
+
+  circle = new ProgressBar.Circle(container, {
+    strokeWidth: 4,
+    trailWidth: 4,
+    easing: "easeInOut",
+    duration: 300,
+    color: "rgba(255,255,255,0.9)",      // se sobrescribe luego
+    trailColor: "rgba(255,255,255,0.1)", // se sobrescribe luego
+  });
+
+  updateTimerCircleColor();
+}
+
+function updateTimerCircleColor() {
+  if (!circle) return;
+
+  const mode = getActiveMode(); // "trabajo" | "estudio" | "deporte" | "neutral"
+  let color = "rgba(148, 163, 184, 0.9)";      // gris por defecto
+  let trail = "rgba(148, 163, 184, 0.2)";
+
+  if (mode === "trabajo") {
+    color = "rgba(59, 130, 246, 0.95)";       // azul
+    trail = "rgba(59, 130, 246, 0.2)";
+  } else if (mode === "estudio") {
+    color = "rgba(34, 197, 94, 0.95)";        // verde
+    trail = "rgba(34, 197, 94, 0.2)";
+  } else if (mode === "deporte") {
+    color = "rgba(249, 115, 22, 0.95)";       // naranja
+    trail = "rgba(249, 115, 22, 0.2)";
+  }
+
+  circle.path.setAttribute("stroke", color);
+  if (circle.trail) {
+    circle.trail.setAttribute("stroke", trail);
+  }
 }
 
 export function navigate(path) {
@@ -248,15 +356,43 @@ document.addEventListener("submit", (event) => {
   const actividad = Number(form.actividad.value);
   const descanso = Number(form.descanso.value);
   const unidad = form.unidad.value || "minutes";
+  const bloques = Number(form.bloques.value) || 1; 
+
+  if (bloques <= 0) {
+    alert("El número de bloques debe ser al menos 1.");
+    return;
+  }
+
+  if (!nombre || !actividad || actividad <= 0) {
+    alert("Introduce al menos un nombre y una duración de actividad.");
+    return;
+  }
+
+  const intervalos = [];
+
+  for (let i = 0; i < bloques; i++) {
+    // intervalo de actividad
+    intervalos.push({
+      duracion: actividad,
+      modo: tipo,
+      unidad,
+    });
+
+    // descanso entre bloques (menos después del último)
+    if (i < bloques - 1 && descanso > 0) {
+      intervalos.push({
+        duracion: descanso,
+        modo: "descanso",
+        unidad,
+      });
+    }
+  }
 
   const updatedPreset = {
     id,
     nombre,
     tipo,
-    intervalos: [
-      { duracion: actividad, modo: tipo, unidad },
-      { duracion: descanso || 0, modo: "descanso", unidad },
-    ],
+    intervalos,
   };
 
   updatePreset(updatedPreset);

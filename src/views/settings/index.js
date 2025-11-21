@@ -1,17 +1,14 @@
 import { getAccentClasses } from "../../core/modeStyle.js";
 
-const { bg, shadow } = getAccentClasses();
-
 export function SettingsView() {
-
   const { bg, shadow } = getAccentClasses();
 
   return `
-    <div class="space-y-6 transition-colors duration-500">
-      <h1 class="text-2xl font-semibold text-center">Settings</h1>
+    <div class="space-y-6 max-w-md mx-auto transition-colors duration-500">
+      <h1 class="text-2xl font-semibold text-center">Ajustes</h1>
 
-      <!-- Selector de tema -->
-      <div class="p-4 bg-slate-800 rounded flex items-center justify-between ${shadow} ">
+      <!-- Tema -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} flex items-center justify-between gap-4">
         <div>
           <div class="font-medium">Tema</div>
           <div class="text-sm text-slate-400">Claro u oscuro</div>
@@ -19,32 +16,39 @@ export function SettingsView() {
         <div class="flex gap-2">
           <button
             data-theme="light"
-            class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded ${shadow}"
+            class="px-3 py-1.5 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600"
           >
             Claro
           </button>
           <button
             data-theme="dark"
-            class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded ${shadow}"
+            class="px-3 py-1.5 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600"
           >
             Oscuro
           </button>
         </div>
       </div>
 
-      <!-- Resto de ajustes como los tenías en la opción A -->
-      <div class="space-y-4">
-
-        <div class="p-4 bg-slate-800 rounded ${shadow}">
+      <!-- Sonidos -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} flex items-center justify-between gap-4">
+        <div>
           <div class="font-medium">Sonidos</div>
-          <div class="text-sm text-slate-400">Activados</div>
+          <div class="text-sm text-slate-400">Configuración de sonidos del timer</div>
         </div>
+        <div class="text-xs px-2 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+          Próximamente
+        </div>
+      </div>
 
-        <div class="p-4 bg-slate-800 rounded ${shadow}">
+      <!-- Notificaciones -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} flex items-center justify-between gap-4">
+        <div>
           <div class="font-medium">Notificaciones</div>
-          <div class="text-sm text-slate-400">Desactivadas</div>
+          <div class="text-sm text-slate-400">Avisos cuando termine un intervalo</div>
         </div>
-
+        <div class="text-xs px-2 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+          Próximamente
+        </div>
       </div>
     </div>
   `;

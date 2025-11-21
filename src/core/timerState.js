@@ -90,6 +90,7 @@ export const timerState = {
   status: "idle",             // 'idle' | 'running' | 'paused' | 'finished'
   timerId: null,
   baseMode: null,
+  statusMessage: "",
 };
 
 export function loadPresetToTimer(presetId) {
@@ -120,6 +121,7 @@ export function loadPresetToTimer(presetId) {
 
     resetRemainingFromCurrentInterval();
     timerState.status = "idle";
+    timerState.statusMessage = "Pulsa Start para comenzar.";
     notifyTimerListeners();
 }
 
@@ -152,26 +154,49 @@ function resetRemainingFromCurrentInterval() {
 function goToNextIntervalOrFinish() {
   timerState.currentIntervalIndex += 1;
 
+  // 👉 Caso 1: se han terminado TODOS los intervalos
   if (timerState.currentIntervalIndex >= timerState.intervals.length) {
-    // No hay más intervalos → fin del preset
-    clearInterval(timerState.timerId);
-    timerState.timerId = null;
+    if (timerState.timerId) {
+      clearInterval(timerState.timerId);
+      timerState.timerId = null;
+    }
+
     timerState.status = "finished";
+    timerState.remainingMs = 0;
+
+    // limpiar preset para volver a neutral
     timerState.intervals = [];
     timerState.baseMode = null;
+
+    timerState.statusMessage = "Preset completado.";
     recordSessionStats();
     notifyTimerListeners();
     return;
   }
 
-  // Pasamos al siguiente intervalo
+  // 👉 Caso 2: hay más intervalos → preparar el siguiente y PAUSAR
+  if (timerState.timerId) {
+    clearInterval(timerState.timerId);
+    timerState.timerId = null;
+  }
+
   resetRemainingFromCurrentInterval();
+  timerState.status = "paused";
+  timerState.statusMessage = "Intervalo completado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
+
 
 export function startTimer() {
   // Si ya está corriendo, no hacemos nada
   if (timerState.status === "running") return;
+
+  if (!timerState.intervals || timerState.intervals.length === 0) {
+    // No hay preset → ningún mensaje
+    timerState.statusMessage = "Selecciona un preset para comenzar.";
+    notifyTimerListeners();
+    return;
+  }
 
   // Si no hay intervalo actual, salimos
   const current = getCurrentInterval();
@@ -186,6 +211,7 @@ export function startTimer() {
   }
 
   timerState.status = "running";
+  timerState.statusMessage = ""; 
 
   // Por si hubiera un intervalo anterior
   if (timerState.timerId) {
@@ -199,6 +225,7 @@ export function startTimer() {
       // Evitamos números negativos
       timerState.remainingMs = 0;
       goToNextIntervalOrFinish();
+      return;
     }
 
     notifyTimerListeners();
@@ -207,16 +234,30 @@ export function startTimer() {
 }
 
 export function stopTimer() {
+  if (!timerState.intervals || timerState.intervals.length === 0) {
+    // No hay preset → ningún mensaje
+    timerState.statusMessage = "Selecciona un preset para comenzar.";
+    notifyTimerListeners();
+    return;
+  }
+
   if (timerState.timerId) {
     clearInterval(timerState.timerId);
     timerState.timerId = null;
   }
 
   timerState.status = "paused";
+  timerState.statusMessage = "Pausado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
 
 export function resetTimer() {
+  if (!timerState.intervals || timerState.intervals.length === 0) {
+    // No hay preset → ningún mensaje
+    timerState.statusMessage = "Selecciona un preset para comenzar.";
+    notifyTimerListeners();
+    return;
+  }
   // Paramos si estaba activo
   if (timerState.timerId) {
     clearInterval(timerState.timerId);
@@ -226,5 +267,6 @@ export function resetTimer() {
   timerState.currentIntervalIndex = 0;
   resetRemainingFromCurrentInterval();
   timerState.status = "idle";
+  timerState.statusMessage = "Timer reseteado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
