@@ -271,10 +271,117 @@ document.addEventListener("click", (event) => {
       unitButton.classList.remove("bg-slate-800", "text-slate-100");
       unitButton.classList.add("bg-emerald-600", "text-slate-900");
     }
+    
     return;
   }
 
-  // 3) Navegación SPA
+   // 3) Selector de tipo de preset (todos iguales / intervalos distintos)
+  const intervalModeButton = event.target.closest("[data-interval-mode]");
+  if (intervalModeButton) {
+    event.preventDefault();
+
+    const form = intervalModeButton.closest("form");
+    if (!form) return;
+
+    const mode = intervalModeButton.getAttribute("data-interval-mode");
+
+    // Actualizamos el hidden
+    const hiddenInput = form.querySelector('input[name="interval-mode"]');
+    if (hiddenInput) {
+      hiddenInput.value = mode;
+    }
+
+    // Estilos de los botones
+    const buttons = form.querySelectorAll("[data-interval-mode]");
+    buttons.forEach((btn) => {
+      btn.classList.remove("bg-emerald-600", "text-slate-900");
+      btn.classList.add("bg-slate-800", "border", "border-slate-700", "text-slate-100");
+    });
+
+    intervalModeButton.classList.remove("bg-slate-800", "border-slate-700", "text-slate-100");
+    intervalModeButton.classList.add("bg-emerald-600", "text-slate-900");
+
+    // Mostrar / ocultar secciones
+    const sections = form.querySelectorAll("[data-interval-section]");
+    sections.forEach((section) => {
+      const sectionMode = section.getAttribute("data-interval-section");
+      if (sectionMode === mode) {
+        section.classList.remove("hidden");
+      } else {
+        section.classList.add("hidden");
+      }
+    });
+
+    return;
+  }
+
+  const addIntervalButton = event.target.closest("[data-add-interval]");
+  if (addIntervalButton) {
+    event.preventDefault();
+
+    const form = addIntervalButton.closest("form");
+    if (!form) return;
+
+    const list = form.querySelector("#intervals-list");
+    if (!list) return;
+
+    const rowHtml = `
+      <div
+        data-interval-row
+        class="flex items-center gap-2 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2"
+      >
+        <select
+          name="tipo-intervalo"
+          class="px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+        >
+          <option value="actividad">Actividad</option>
+          <option value="descanso">Descanso</option>
+        </select>
+
+        <input
+          type="number"
+          name="duracion"
+          placeholder="Tiempo"
+          class="w-20 px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+          min="1"
+        />
+
+        <select
+          name="unidad-fila"
+          class="px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+        >
+          <option value="seconds">s</option>
+          <option value="minutes" selected>min</option>
+          <option value="hours">h</option>
+        </select>
+
+        <button
+          type="button"
+          data-remove-interval-row
+          class="ml-auto text-slate-400 hover:text-red-400 text-xs"
+          title="Eliminar intervalo"
+        >
+          ✕
+        </button>
+      </div>
+    `;
+
+    list.insertAdjacentHTML("beforeend", rowHtml);
+    return;
+  }
+
+  // 5) Eliminar fila de intervalo personalizado
+  const removeIntervalButton = event.target.closest("[data-remove-interval-row]");
+  if (removeIntervalButton) {
+    event.preventDefault();
+    const row = removeIntervalButton.closest("[data-interval-row]");
+    if (row) {
+      row.remove();
+    }
+    return;
+  }
+
+  // 4) Navegación SPA
   const link = event.target.closest("[data-link]");
   if (!link) return;
 
@@ -285,61 +392,217 @@ document.addEventListener("click", (event) => {
 // 4) Envío del formulario "Nuevo preset"
 document.addEventListener("submit", (event) => {
   const form = event.target;
-  if (!form.matches('[data-form="create-preset"]')) return;
 
-  event.preventDefault();
+  // 🟢 CREAR PRESET
+  if (form.matches('[data-form="create-preset"]')) {
+    event.preventDefault();
 
-  const nombre = form.nombre.value.trim();
-  const tipo = form.tipo.value;
-  const actividad = Number(form.actividad.value);
-  const descanso = Number(form.descanso.value);
-  const unidad = form.unidad.value || "minutes";
-  const bloques = Number(form.bloques.value) || 1;
+    const nombre = form.nombre.value.trim();
+    const tipo = form.tipo.value;
+    const actividad = Number(form.actividad.value);
+    const descanso = Number(form.descanso.value);
+    const unidad = form.unidad.value || "minutes";
+    const bloques = Number(form.bloques.value) || 1;
+    const presetMode = form["interval-mode"].value || "uniforme";
 
-  if (bloques <= 0) {
-    alert("El número de bloques debe ser al menos 1.");
-    return;
-  }
-
-  if (!nombre || !actividad || actividad <= 0) {
-    alert("Introduce al menos un nombre y una duración de actividad.");
-    return;
-  }
-
-  const intervalos = [];
-
-  for (let i = 0; i < bloques; i++) {
-    // bloque de actividad
-    intervalos.push({
-      duracion: actividad,
-      modo: tipo,
-      unidad,
-    });
-
-    // si no es el último bloque, añadimos descanso
-    if (i < bloques - 1 && descanso > 0) {
-      intervalos.push({
-        duracion: descanso,
-        modo: "descanso",
-        unidad,
-      });
+    if (!nombre) {
+      alert("Introduce un nombre para el preset.");
+      return;
     }
+
+    if (presetMode === "uniforme") {
+      if (bloques <= 0) {
+        alert("El número de bloques debe ser al menos 1.");
+        return;
+      }
+
+      if (!actividad || actividad <= 0) {
+        alert("Introduce una duración de actividad mayor que 0.");
+        return;
+      }
+    }
+
+    const intervalos = [];
+
+    if (presetMode === "uniforme") {
+      for (let i = 0; i < bloques; i++) {
+        intervalos.push({
+          duracion: actividad,
+          modo: tipo,
+          unidad,
+        });
+
+        if (i < bloques - 1 && descanso > 0) {
+          intervalos.push({
+            duracion: descanso,
+            modo: "descanso",
+            unidad,
+          });
+        }
+      }
+    } else {
+      const filas = form.querySelectorAll("[data-interval-row]");
+
+      if (filas.length === 0) {
+        alert("Añade al menos un intervalo.");
+        return;
+      }
+
+      filas.forEach((fila) => {
+        const duracion = Number(
+          fila.querySelector("[name='duracion']").value
+        );
+        const tipoIntervalo = fila.querySelector(
+          "[name='tipo-intervalo']"
+        ).value;
+        const unidadFila =
+          fila.querySelector("[name='unidad-fila']").value || unidad;
+
+        if (!duracion || duracion <= 0) return;
+
+        const modoFinal =
+          tipoIntervalo === "actividad" ? tipo : "descanso";
+
+        intervalos.push({
+          duracion,
+          modo: modoFinal,
+          unidad: unidadFila,
+        });
+      });
+
+      if (intervalos.length === 0) {
+        alert(
+          "Todos los intervalos personalizados tienen duración 0. Revisa los tiempos."
+        );
+        return;
+      }
+    }
+
+    const presets = getPresets();
+    const newId =
+      presets.length > 0
+        ? Math.max(...presets.map((p) => p.id || 0)) + 1
+        : 1;
+
+    const nuevoPreset = {
+      id: newId,
+      nombre,
+      tipo,
+      intervalos,
+    };
+
+    savePresets([...presets, nuevoPreset]);
+    navigate("/presets");
+    return;
   }
 
-  const presets = getPresets();
-  const newId =
-    presets.length > 0 ? Math.max(...presets.map((p) => p.id || 0)) + 1 : 1;
+  // 🔵 EDITAR PRESET
+  if (form.matches('[data-form="edit-preset"]')) {
+    event.preventDefault();
 
-  const nuevoPreset = {
-    id: newId,
-    nombre,
-    tipo,
-    intervalos,
-  };
+    const id = Number(form.id.value);
+    const nombre = form.nombre.value.trim();
+    const tipo = form.tipo.value;
+    const actividad = Number(form.actividad.value);
+    const descanso = Number(form.descanso.value);
+    const unidad = form.unidad?.value || "minutes";
+    const bloques = Number(form.bloques.value) || 1;
+    const presetMode = form["interval-mode"].value || "uniforme";
 
-  savePresets([...presets, nuevoPreset]);
-  navigate("/presets");
+    if (!nombre) {
+      alert("Introduce un nombre para el preset.");
+      return;
+    }
+
+    if (presetMode === "uniforme") {
+      if (bloques <= 0) {
+        alert("El número de bloques debe ser al menos 1.");
+        return;
+      }
+
+      if (!actividad || actividad <= 0) {
+        alert("Introduce una duración de actividad mayor que 0.");
+        return;
+      }
+    }
+
+    const intervalos = [];
+
+    if (presetMode === "uniforme") {
+      for (let i = 0; i < bloques; i++) {
+        intervalos.push({
+          duracion: actividad,
+          modo: tipo,
+          unidad,
+        });
+
+        if (i < bloques - 1 && descanso > 0) {
+          intervalos.push({
+            duracion: descanso,
+            modo: "descanso",
+            unidad,
+          });
+        }
+      }
+    } else {
+      const filas = form.querySelectorAll("[data-interval-row]");
+
+      if (filas.length === 0) {
+        alert("Añade al menos un intervalo.");
+        return;
+      }
+
+      filas.forEach((fila) => {
+        const duracion = Number(
+          fila.querySelector("[name='duracion']").value
+        );
+        const tipoIntervalo = fila.querySelector(
+          "[name='tipo-intervalo']"
+        ).value;
+        const unidadFila =
+          fila.querySelector("[name='unidad-fila']").value || unidad;
+
+        if (!duracion || duracion <= 0) return;
+
+        const modoFinal =
+          tipoIntervalo === "actividad" ? tipo : "descanso";
+
+        intervalos.push({
+          duracion,
+          modo: modoFinal,
+          unidad: unidadFila,
+        });
+      });
+
+      if (intervalos.length === 0) {
+        alert(
+          "Todos los intervalos personalizados tienen duración 0. Revisa los tiempos."
+        );
+        return;
+      }
+    }
+
+    const presets = getPresets();
+    const index = presets.findIndex((p) => p.id === id);
+    if (index === -1) {
+      alert("No se ha encontrado el preset a editar.");
+      return;
+    }
+
+    presets[index] = {
+      ...presets[index],
+      nombre,
+      tipo,
+      intervalos,
+    };
+
+    savePresets(presets);
+    navigate("/presets");
+    return;
+  }
 });
+
+
 
 document.addEventListener("submit", (event) => {
   const form = event.target;
@@ -368,24 +631,57 @@ document.addEventListener("submit", (event) => {
     return;
   }
 
+  const presetMode = form["interval-mode"].value || "uniforme";
   const intervalos = [];
 
-  for (let i = 0; i < bloques; i++) {
-    // intervalo de actividad
-    intervalos.push({
-      duracion: actividad,
-      modo: tipo,
-      unidad,
-    });
-
-    // descanso entre bloques (menos después del último)
-    if (i < bloques - 1 && descanso > 0) {
+  if (presetMode === "uniforme") {
+    for (let i = 0; i < bloques; i++) {
+      // intervalo de actividad
       intervalos.push({
-        duracion: descanso,
-        modo: "descanso",
+        duracion: actividad,
+        modo: tipo,
         unidad,
       });
+
+      // descanso entre bloques (menos después del último)
+      if (i < bloques - 1 && descanso > 0) {
+        intervalos.push({
+          duracion: descanso,
+          modo: "descanso",
+          unidad,
+        });
+      }
     }
+  } else {
+
+    const filas = form.querySelectorAll("[data-interval-row]");
+
+    if (filas.length === 0) {
+      alert("Añade al menos un intervalo.");
+      return;
+    }
+
+    filas.forEach((fila) => {
+      const duracion = Number(
+        fila.querySelector("[name='duracion']").value
+      );
+      const tipoIntervalo = fila.querySelector(
+        "[name='tipo-intervalo']"
+      ).value; // "actividad" | "descanso"
+      const unidadFila =
+        fila.querySelector("[name='unidad-fila']").value || unidad;
+
+      if (!duracion || duracion <= 0) return;
+
+      const modoFinal =
+        tipoIntervalo === "actividad" ? tipo : "descanso";
+
+      intervalos.push({
+        duracion,
+        modo: modoFinal, // trabajo/estudio/deporte o "descanso"
+        unidad: unidadFila,
+      });
+    });
   }
 
   const updatedPreset = {

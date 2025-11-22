@@ -35,6 +35,7 @@ export function TimerView() {
 
   const intervals = timerState.intervals || [];
   const idx = timerState.currentIntervalIndex ?? 0;
+  const next0 = intervals[idx] || null;
   const next1 = intervals[idx + 1] || null;
   const next2 = intervals[idx + 2] || null;
 
@@ -61,8 +62,20 @@ export function TimerView() {
         </h1>
 
         <div class="space-y-1 text-center">
-          <div id="timer-preset-name" class="text-sm text-slate-300 font-medium">
-            ${presetName}
+          <div class="flex items-center justify-center gap-2">
+            <div id="timer-preset-name" class="text-sm text-slate-300 font-medium">
+              ${presetName}
+            </div>
+
+            ${
+              next0
+                ? `
+                  <span class="px-2 py-0.5 rounded-full text-xs bg-slate-800/70 border border-slate-700 text-slate-200">
+                    ${formatIntervalLabel(next0)}
+                  </span>
+                `
+                : ""
+            }
           </div>
           <div id="timer-status-message" class="text-xs text-slate-400 min-h-[1rem]">
             ${message}

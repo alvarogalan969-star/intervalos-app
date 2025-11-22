@@ -22,63 +22,124 @@ export function PresetsView() {
   const items = presets
     .map((preset) => {
       const colorClass = presetColor(preset.tipo);
+      const intervalos = preset.intervalos || [];
 
-      const actividadInterval = preset.intervalos.find(
-        (i) => i.modo !== "descanso"
-      );
-      const descansoInterval = preset.intervalos.find(
-        (i) => i.modo === "descanso"
-      );
-      const bloques =
-        preset.intervalos.filter((i) => i.modo !== "descanso").length || 1;
+      const actividadIntervals = intervalos.filter((i) => i.modo !== "descanso");
+      const descansoIntervals = intervalos.filter((i) => i.modo === "descanso");
 
-      const durActividad = actividadInterval
-        ? formatDuration(actividadInterval.duracion, actividadInterval.unidad)
-        : "-";
+      const actividad = actividadIntervals[0]?.duracion || 0;
+      const descanso = descansoIntervals[0]?.duracion || 0;
+      const unidadBase = intervalos[0]?.unidad || "minutes";
 
-      const durDescanso = descansoInterval
-        ? formatDuration(descansoInterval.duracion, descansoInterval.unidad)
-        : "-";
+      const esUniforme =
+        intervalos.length > 0 &&
+        actividadIntervals.length > 0 &&
+        actividadIntervals.every(
+          (i) => i.duracion === actividad && i.unidad === unidadBase
+        ) &&
+        (descansoIntervals.length === 0 ||
+          descansoIntervals.every(
+            (i) => i.duracion === descanso && i.unidad === unidadBase
+          ));
 
-      const partes = [];
+      let detalles = "";
 
-      if (durActividad !== "-") {
+      if (esUniforme) {
+        // Vista clásica: actividad / descanso / bloques
+        const durActividad = actividad
+          ? formatDuration(actividad, unidadBase)
+          : "-";
+        const durDescanso = descanso
+          ? formatDuration(descanso, unidadBase)
+          : "-";
+        const bloques = actividadIntervals.length || 1;
+
+        const partes = [];
+
+        if (durActividad !== "-") {
+          partes.push(`
+            <span class="inline-flex items-center gap-1 text-xs">
+              <span class="px-1.5 py-0.5 rounded bg-slate-800/70 border border-slate-700 font-mono">
+                ${durActividad}
+              </span>
+              <span>Actividad</span>
+            </span>
+          `);
+        }
+
+        if (durDescanso !== "-") {
+          partes.push(`
+            <span class="inline-flex items-center gap-1 text-xs">
+              <span class="px-1.5 py-0.5 rounded bg-slate-800/70 border border-slate-700 font-mono">
+                ${durDescanso}
+              </span>
+              <span>Descanso</span>
+            </span>
+          `);
+        }
+
         partes.push(`
           <span class="inline-flex items-center gap-1 text-xs">
-            <span class="px-1.5 py-0.5 rounded bg-slate-800/70 border border-slate-700 font-mono">
-              ${durActividad}
-            </span>
-            <span>${preset.nombre}</span>
+            x${bloques}
           </span>
         `);
-      }
 
-      if (durDescanso !== "-") {
-        partes.push(`
+        detalles = partes.join(`
+          <span class="mx-1 text-slate-600">·</span>
+        `);
+      } else {
+        // Vista para presets personalizados
+        const total = intervalos.length;
+
+        const preview = intervalos.slice(0, 4).map((i) => {
+          const u =
+            i.unidad === "seconds"
+              ? "s"
+              : i.unidad === "hours"
+              ? "h"
+              : "m";
+          const label = i.modo === "descanso" ? "Desc" : "Act";
+
+          return `
+            <span class="inline-flex items-center gap-1 text-xs">
+              <span class="px-1.5 py-0.5 rounded bg-slate-800/70 border border-slate-700 font-mono">
+                ${i.duracion}${u}
+              </span>
+              <span>${label}</span>
+            </span>
+          `;
+        }).join(`
+          <span class="mx-1 text-slate-600">·</span>
+        `);
+
+        detalles = `
           <span class="inline-flex items-center gap-1 text-xs">
-            <span class="px-1.5 py-0.5 rounded bg-slate-800/70 border border-slate-700 font-mono">
-              ${durDescanso}
-            </span>
-            <span>Descanso</span>
+            Secuencia personalizada
           </span>
-        `);
+
+          <span class="mx-1 text-slate-600">·</span>
+
+          <span class="inline-flex items-center gap-1 text-xs">
+            ${total} intervalos
+          </span>
+
+          ${
+            preview
+              ? `
+            <span class="mx-1 text-slate-600">·</span>
+            ${preview}
+            ${total > 4 ? `<span class="mx-1 text-slate-600">·</span> …` : ""}
+          `
+              : ""
+          }
+        `;
       }
-
-      partes.push(`
-        <span class="inline-flex items-center gap-1 text-xs">
-          x${bloques}
-        </span>
-      `);
-
-      const detalles = partes.join(`
-        <span class="mx-1 text-slate-600">·</span>
-      `);
 
       return `
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 bg-slate-900/80 border border-slate-800 rounded-xl ${shadow} transition-colors duration-500">
           <div>
             <div class="font-medium">${preset.nombre}</div>
-            <div class="text-xs text-slate-400">${detalles}</div>
+            <div class="text-xs text-slate-400 mt-4">${detalles}</div>
           </div>
 
           <div class="flex items-center gap-2 sm:self-auto self-end">

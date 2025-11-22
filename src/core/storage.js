@@ -10,6 +10,20 @@ const DEFAULT_PRESETS = [
     intervalos: [
       { duracion: 25, modo: "trabajo", unidad: "minutes" },
       { duracion: 5, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 5, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 5, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 15, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 5, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 5, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 5, modo: "descanso", unidad: "minutes" },
+      { duracion: 25, modo: "trabajo", unidad: "minutes" },
+      { duracion: 15, modo: "descanso", unidad: "minutes" }
     ],
   },
   {
@@ -19,6 +33,9 @@ const DEFAULT_PRESETS = [
     intervalos: [
       { duracion: 50, modo: "estudio", unidad: "minutes" },
       { duracion: 10, modo: "descanso", unidad: "minutes" },
+      { duracion: 50, modo: "estudio", unidad: "minutes" },
+      { duracion: 10, modo: "descanso", unidad: "minutes" },
+      { duracion: 50, modo: "estudio", unidad: "minutes" }
     ],
   },
   {
@@ -26,6 +43,16 @@ const DEFAULT_PRESETS = [
     nombre: "HIIT básico",
     tipo: "deporte",
     intervalos: [
+      { duracion: 30, modo: "deporte", unidad: "seconds" },
+      { duracion: 15, modo: "descanso", unidad: "seconds" },
+      { duracion: 30, modo: "deporte", unidad: "seconds" },
+      { duracion: 15, modo: "descanso", unidad: "seconds" },
+      { duracion: 30, modo: "deporte", unidad: "seconds" },
+      { duracion: 15, modo: "descanso", unidad: "seconds" },
+      { duracion: 30, modo: "deporte", unidad: "seconds" },
+      { duracion: 15, modo: "descanso", unidad: "seconds" },
+      { duracion: 30, modo: "deporte", unidad: "seconds" },
+      { duracion: 15, modo: "descanso", unidad: "seconds" },
       { duracion: 30, modo: "deporte", unidad: "seconds" },
       { duracion: 15, modo: "descanso", unidad: "seconds" },
     ],
