@@ -1,8 +1,10 @@
 import { 
   getPresets,
   getStats,
-  saveStats 
+  saveStats,
+  addSessionStats 
 } from "./storage.js";
+import { playIntervalSound, playCountdownBeep, playCountdownGo, playFinishSound  } from "./sound.js";
 
 
 const TICK_MS = 1000;
@@ -91,6 +93,9 @@ export const timerState = {
   timerId: null,
   baseMode: null,
   statusMessage: "",
+  countdownActive: false,
+  countdownValue: 0,
+  countdownTimerId: null,
 };
 
 export function loadPresetToTimer(presetId) {
@@ -112,17 +117,26 @@ export function loadPresetToTimer(presetId) {
 
   const firstInterval = timerState.intervals[0];
 
-    if (!firstInterval) {
-        console.warn("Preset sin intervalos", presetId);
-        timerState.remainingMs = 0;
-        timerState.status = "idle";
-        return;
-    }
-
-    resetRemainingFromCurrentInterval();
+  if (!firstInterval) {
+    console.warn("Preset sin intervalos", presetId);
+    timerState.remainingMs = 0;
     timerState.status = "idle";
-    timerState.statusMessage = "Pulsa Start para comenzar.";
-    notifyTimerListeners();
+    return;
+  }
+
+  timerState.originalTotalMs = preset.intervalos.reduce((acc, itv) => {
+  const unit = itv.unidad || "minutes";
+  const base =
+    unit === "seconds" ? 1000 :
+    unit === "hours" ? 3600 * 1000 :
+    60 * 1000;
+  return acc + itv.duracion * base;
+}, 0);
+
+  resetRemainingFromCurrentInterval();
+  timerState.status = "idle";
+  timerState.statusMessage = "Pulsa Start para comenzar.";
+  notifyTimerListeners();
 }
 
 function getCurrentInterval() {
@@ -161,6 +175,31 @@ function goToNextIntervalOrFinish() {
       timerState.timerId = null;
     }
 
+    playFinishSound();
+
+    if (typeof confetti === "function") {
+      confetti({
+        particleCount: 200,
+        spread: 90,
+        origin: { y: 0 },
+        ticks: 300,
+      });
+    }
+
+    const stats = getStats();
+    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+    if (!stats.byDay[today]) {
+      stats.byDay[today] = {
+        totalMs: 0,
+        sessions: 0,
+      };
+    }
+
+    stats.byDay[today].sessions += 1;
+
+    saveStats(stats);
+
     timerState.status = "finished";
     timerState.remainingMs = 0;
 
@@ -178,6 +217,17 @@ function goToNextIntervalOrFinish() {
   if (timerState.timerId) {
     clearInterval(timerState.timerId);
     timerState.timerId = null;
+  }
+
+  const current = timerState.intervals[timerState.currentIntervalIndex];
+  if (current) {
+    // 👇 si es descanso, usamos el modo base (trabajo/estudio/deporte)
+    const soundMode =
+      current.modo === "descanso"
+        ? (timerState.baseMode || "trabajo")
+        : current.modo;
+
+    playIntervalSound(soundMode);
   }
 
   resetRemainingFromCurrentInterval();
@@ -269,4 +319,49 @@ export function resetTimer() {
   timerState.status = "idle";
   timerState.statusMessage = "Timer reseteado. Pulsa Start para continuar.";
   notifyTimerListeners();
+}
+
+export function startCountdownThenStartTimer() {
+  if (!timerState.intervals || timerState.intervals.length === 0) return;
+  if (timerState.countdownActive) return;
+
+  // Estado inicial cuenta atrás
+  timerState.countdownActive = true;
+  timerState.countdownValue = 3;
+  timerState.statusMessage = "Preparado...";
+  notifyTimerListeners();
+
+  if (timerState.countdownTimerId) {
+    clearInterval(timerState.countdownTimerId);
+    timerState.countdownTimerId = null;
+  }
+
+  // Primer beep
+  playCountdownBeep();
+
+  let ticks = 0;
+  timerState.countdownTimerId = setInterval(() => {
+    ticks += 1;
+    const value = 3 - ticks;
+
+    if (value > 0) {
+      timerState.countdownValue = value; // 2, luego 1
+      notifyTimerListeners();
+      playCountdownBeep();
+      return;
+    }
+
+    // Fin de la cuenta atrás
+    clearInterval(timerState.countdownTimerId);
+    timerState.countdownTimerId = null;
+    timerState.countdownActive = false;
+    timerState.countdownValue = 0;
+    notifyTimerListeners();
+
+    // Bocina
+    playCountdownGo();
+
+    // Arrancar el timer real (primer intervalo)
+    startTimer();
+  }, 1000);
 }

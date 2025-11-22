@@ -39,6 +39,9 @@ export function TimerView() {
   const next1 = intervals[idx + 1] || null;
   const next2 = intervals[idx + 2] || null;
 
+  const showCountdown = timerState.countdownActive;
+  const countdownValue = timerState.countdownValue || 0;
+
   function formatIntervalLabel(interval) {
     if (!interval) return "";
     return interval.modo === "descanso" ? "Descanso" : "Actividad";
@@ -165,6 +168,26 @@ export function TimerView() {
           </button>
         </div>
       </div>
+
+      <!-- Overlay de cuenta atrás -->
+        ${
+          showCountdown
+            ? `
+          <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/70">
+            <div class="w-full max-w-md px-8">
+              <div class="overflow-hidden">
+                <div
+                  class="countdown-number text-7xl md:text-8xl font-bold text-slate-100 text-center"
+                >
+                  ${countdownValue}
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+            : ""
+        }
+
     </div>
   `;
 }

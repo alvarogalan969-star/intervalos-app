@@ -23,11 +23,15 @@ import {
   resetTimer,
   subscribeToTimer,
   timerState,
+  startCountdownThenStartTimer,
 } from "./core/timerState.js";
+import { stopAllSounds } from "./core/sound.js";
 
 let lastAppliedMode = null;
 let circle = null;
 let lastIntervalIndex = timerState.currentIntervalIndex ?? 0;
+let lastCountdownActive = timerState.countdownActive ?? false;
+let lastCountdownValue = timerState.countdownValue ?? 0;
 
 function updateTimerCircleFromState() {
   if (!circle) return;
@@ -128,13 +132,21 @@ subscribeToTimer(() => {
   const intervalChanged = currentIndex !== previousIndex;
   lastIntervalIndex = currentIndex;
 
+  const countdownActiveChanged =
+    timerState.countdownActive !== lastCountdownActive;
+  lastCountdownActive = timerState.countdownActive;
+
+  const countdownValueChanged =
+    timerState.countdownValue !== lastCountdownValue;
+  lastCountdownValue = timerState.countdownValue;
+
   updateTimerDisplayFromState();
   updateTimerMessageFromState();
   syncActiveModeWithCurrentInterval();
   updateTimerCircleFromState();
   updateTimerCircleColor();
 
-  if (intervalChanged) {
+  if (intervalChanged || countdownActiveChanged || countdownValueChanged) {
     render();
   }
 
@@ -716,6 +728,7 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
+  stopAllSounds();
   startTimer();
 });
 
@@ -724,6 +737,7 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
+  stopAllSounds();
   stopTimer();
 });
 
@@ -732,6 +746,7 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
+  stopAllSounds();
   resetTimer();
 });
 
@@ -743,7 +758,7 @@ document.addEventListener("click", (event) => {
   const presetId = Number(useBtn.getAttribute("data-preset-id"));
   loadPresetToTimer(presetId);
   navigate("/");
-  startTimer();
+  startCountdownThenStartTimer();
 });
 
 document.addEventListener("click", (event) => {

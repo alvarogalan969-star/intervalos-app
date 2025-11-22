@@ -37,3 +37,18 @@ body.page-timer.mode-deporte {
 .shadow-beat {
   animation: shadow-beat 1s ease-in-out;
 }
+
+@keyframes countdown-slide {
+  from {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.countdown-number {
+  animation: countdown-slide 0.35s ease-out;
+}

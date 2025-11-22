@@ -66,10 +66,10 @@ const DEFAULT_SETTINGS = {
   notificationsEnabled: false,
   timeUnit: "minutes",
   sounds: {
-    trabajo: "work_beep_1",
-    estudio: "study_chime_1",
-    deporte: "sport_whistle_1",
-    descanso: "break_bell_1",
+    trabajo: "chime-alert-demo-309545",
+    estudio: "bell-sound-370341",
+    deporte: "alarm-clock-90867",
+    finish: "winfantasia-6912", 
     volume: 0.8,
     muted: false,
   },
@@ -105,6 +105,37 @@ function saveJSON(key, value) {
   }
 }
 
+function updateStreak(stats, today) {
+  const last = stats.streak.lastDay;
+
+  if (!last) {
+    stats.streak.current = 1;
+    stats.streak.best = 1;
+    stats.streak.lastDay = today;
+    return;
+  }
+
+  const diff = daysBetween(last, today);
+
+  if (diff === 1) {
+    stats.streak.current += 1;
+  } else if (diff > 1) {
+    stats.streak.current = 1;
+  }
+
+  if (stats.streak.current > stats.streak.best) {
+    stats.streak.best = stats.streak.current;
+  }
+
+  stats.streak.lastDay = today;
+}
+
+function daysBetween(d1, d2) {
+  const t1 = new Date(d1).getTime();
+  const t2 = new Date(d2).getTime();
+  return Math.floor((t2 - t1) / (1000 * 60 * 60 * 24));
+}
+
 export function getPresets() {
   return loadJSON(PRESETS_KEY, DEFAULT_PRESETS);
 }
@@ -131,6 +162,29 @@ export function saveStats(stats) {
 
 export function resetStats() {
   saveJSON(STATS_KEY, DEFAULT_STATS);
+}
+
+export function addSessionStats(totalMs) {
+  const stats = getStats();
+
+  const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+
+  // Crear entrada si no existe
+  if (!stats.byDay[today]) {
+    stats.byDay[today] = {
+      totalMs: 0,
+      sessions: 0,
+    };
+  }
+
+  // Añadir datos
+  stats.byDay[today].totalMs += totalMs;
+  stats.byDay[today].sessions += 1;
+
+  // Actualizar racha
+  updateStreak(stats, today);
+
+  saveStats(stats);
 }
 
 export function getPresetById(id) {
