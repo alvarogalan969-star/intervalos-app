@@ -84,6 +84,11 @@ const DEFAULT_STATS = {
     best: 0,
     lastDay: null, // "2025-11-20"
   },
+  modes: {
+    trabajo: { totalMs: 0, sessions: 0 },
+    estudio: { totalMs: 0, sessions: 0 },
+    deporte: { totalMs: 0, sessions: 0 },
+  },
 };
 
 function loadJSON(key, defaultValue) {

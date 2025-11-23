@@ -191,6 +191,12 @@ function render() {
       updateTimerCircleFromState(); // refrescar progreso inicial
     }, 20);
   }
+
+  if (path === "/stats") {
+    setTimeout(() => {
+      initStatsChart();
+    }, 20);
+  }
 }
 
 function initTimerCircle() {
@@ -237,6 +243,113 @@ function updateTimerCircleColor() {
   if (circle.trail) {
     circle.trail.setAttribute("stroke", trail);
   }
+}
+
+function getLast7DaysSeriesForChart() {
+  const stats = getStats();
+  const byDay = stats.byDay || {};
+
+  const labels = [];
+  const values = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+
+    const key = d.toISOString().slice(0, 10);
+    const dayStats = byDay[key] || { totalMs: 0 };
+
+    labels.push(
+      d.toLocaleDateString(undefined, { weekday: "short" }) // lun, mar...
+    );
+    // pasamos a minutos para el gráfico
+    values.push(Math.round((dayStats.totalMs || 0) / 60000));
+  }
+
+  return { labels, values };
+}
+
+function initStatsChart() {
+  const el = document.getElementById("stats-chart-7d");
+  if (!el || !window.echarts) return;
+
+  const { labels, values } = getLast7DaysSeriesForChart();
+  console.log(labels, values);
+
+  const chart = echarts.init(el);
+
+  chart.setOption({
+    tooltip: {
+    trigger: "axis",
+    backgroundColor: "rgba(15,23,42,0.96)",   // bg-slate-900 aprox
+    borderColor: "#1e293b",                   // border-slate-800
+    borderWidth: 1,
+    padding: [8, 10],
+    textStyle: {
+      color: "#e5e7eb",                       // text-slate-200
+      fontSize: 11,
+      fontFamily:
+        'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    },
+    axisPointer: {
+      type: "shadow",
+      shadowStyle: {
+        color: "rgba(15,23,42,0.65)",         // sombra suave bajo la barra
+      },
+    },
+    formatter: (params) => {
+      const p = params[0];
+      // p.axisValue = "lun", "mar"...
+      // p.data = minutos
+      return `
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <span style="font-size:11px;opacity:0.8;">${p.axisValue}</span>
+          <span style="font-size:12px;font-weight:500;">${p.data} min</span>
+        </div>
+      `;
+    },
+  },
+    grid: { left: 30, right: 10, top: 20, bottom: 25 },
+    xAxis: {
+      type: "category",
+      data: labels,
+      axisLine: { lineStyle: { color: "#64748b" } },
+      axisLabel: { color: "#cbd5f5", fontSize: 10 },
+    },
+    yAxis: {
+      type: "value",
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: "#1e293b" } },
+      axisLabel: { color: "#94a3b8", fontSize: 10 },
+      nameTextStyle: { color: "#94a3b8", fontSize: 10, padding: [0, 0, 0, -10] },
+    },
+    series: [
+      {
+        type: "bar",
+        data: values,
+        barWidth: "50%",
+        itemStyle: {
+          borderRadius: [6, 6, 0, 0],
+          color: {
+            type: "linear",
+            x: 0,
+            y: 1,
+            x2: 0,
+            y2: 0,
+            colorStops: [
+              { offset: 0, color: "#034111ff" },
+              { offset: 1, color: "#4ade80" },
+            ],
+          },
+        },
+      },
+    ],
+  });
+
+  // opcional: resize al cambiar tamaño de ventana
+  window.addEventListener("resize", () => {
+    chart.resize();
+  });
 }
 
 export function navigate(path) {

@@ -52,3 +52,18 @@ body.page-timer.mode-deporte {
 .countdown-number {
   animation: countdown-slide 0.35s ease-out;
 }
+
+@keyframes stats-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-section {
+  animation: stats-fade-up 0.35s ease-out;
+}

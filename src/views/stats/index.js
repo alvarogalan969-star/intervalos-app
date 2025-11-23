@@ -27,6 +27,20 @@ function getTotals(stats) {
   return { totalMs, totalSessions };
 }
 
+function getModeStats(stats) {
+  const modes = stats.modes || {};
+
+  function safeMode(name) {
+    return modes[name] || { totalMs: 0, sessions: 0 };
+  }
+
+  return {
+    trabajo: safeMode("trabajo"),
+    estudio: safeMode("estudio"),
+    deporte: safeMode("deporte"),
+  };
+}
+
 export function StatsView() {
   const { bg, shadow } = getAccentClasses();
   const stats = getStats();
@@ -35,17 +49,25 @@ export function StatsView() {
   const streakCurrent = stats.streak.current || 0;
   const streakBest = stats.streak.best || 0;
 
+  const modeStats = getModeStats(stats);
+  const tTrabajo = modeStats.trabajo;
+  const tEstudio = modeStats.estudio;
+  const tDeporte = modeStats.deporte;
+
   return `
-    <div class="space-y-8 max-w-xl mx-auto transition-colors duration-500">
+  <div class="space-y-10 max-w-xl mx-auto transition-colors duration-500">
 
-      <!-- Título -->
-      <h1 class="text-2xl font-semibold text-center">Estadísticas</h1>
+    <!-- TÍTULO -->
+    <h1 class="text-2xl font-semibold text-center">Estadísticas</h1>
 
-      <!-- Tarjetas -->
+    <!-- 🎯 RESUMEN GENERAL -->
+    <section class="space-y-4 stats-section">
+      <h2 class="text-sm text-slate-400 uppercase tracking-wide pl-1">Resumen</h2>
+
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-        <!-- Total tiempo -->
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow}">
+        <!-- Tiempo total -->
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-600/80">
           <div class="text-sm text-slate-400 flex items-center gap-2">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
               viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -54,48 +76,89 @@ export function StatsView() {
             </svg>
             Tiempo total
           </div>
-          <div class="mt-2 text-2xl font-mono">${formatMsToHuman(totalMs)}</div>
+          <div class="text-xl mt-1 font-mono tracking-tight">${formatMsToHuman(totalMs)}</div>
         </div>
 
-        <!-- Total sesiones -->
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow}">
+        <!-- Completadas -->
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-600/80">
           <div class="text-sm text-slate-400 flex items-center gap-2">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
               viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 3v18l7-5 7 5V3z"></path>
             </svg>
-            Completadas
+            Completados
           </div>
-          <div class="mt-2 text-2xl font-mono">${totalSessions}</div>
+          <div class="text-xl mt-1 font-mono tracking-tight">${totalSessions}</div>
         </div>
 
         <!-- Racha -->
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow}">
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-600/80">
           <div class="text-sm text-slate-400 flex items-center gap-2">
-            <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
+            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" stroke-width="2"
               viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12h18M12 3v18"></path>
+              <path d="M12 2C9 5 9 7.5 10 9.5C8.5 10 7 11.5 7 13.5C7 16 9 18 12 18C15 18 17 16 17 13.5C17 11.5 15.5 10 14 9.5C15 7.5 15 5 12 2Z"></path>
             </svg>
             Racha
           </div>
-          <div class="mt-2 text-lg font-mono leading-tight">
+          <div class="text-sm mt-1 font-mono leading-tight">
             Actual: ${streakCurrent} días<br/>
             Mejor: ${streakBest} días
           </div>
         </div>
 
       </div>
+    </section>
 
-      <!-- Botón reset -->
-      <div class="pt-4 text-center">
-        <button
-          id="stats-reset"
-          class="px-4 py-2 rounded-lg border border-slate-700 text-slate-300 bg-slate-800/60 hover:bg-slate-700 transition-colors"
-        >
-          Reiniciar estadísticas
-        </button>
+    <!-- 🟦 POR TIPO DE PRESET -->
+    <section class="space-y-4 stats-section">
+      <h2 class="text-sm text-slate-400 uppercase tracking-wide pl-1">Por tipo de preset</h2>
+
+      <div class="grid gap-4 sm:grid-cols-3">
+
+        <!-- Trabajo -->
+        <div class="p-4 rounded-xl bg-blue-600/10 border border-blue-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:border-blue-400/50">
+          <div class="text-xs uppercase tracking-wide text-blue-300">Trabajo</div>
+          <div class="text-base mt-1 font-mono">${formatMsToHuman(tTrabajo.totalMs)}</div>
+          <div class="text-[11px] text-slate-500">${tTrabajo.sessions} presets</div>
+        </div>
+
+        <!-- Estudio -->
+        <div class="p-4 rounded-xl bg-emerald-600/10 border border-emerald-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:border-blue-400/50">
+          <div class="text-xs uppercase tracking-wide text-emerald-300">Estudio</div>
+          <div class="text-base mt-1 font-mono">${formatMsToHuman(tEstudio.totalMs)}</div>
+          <div class="text-[11px] text-slate-500">${tEstudio.sessions} presets</div>
+        </div>
+
+        <!-- Deporte -->
+        <div class="p-4 rounded-xl bg-orange-600/10 border border-orange-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:border-blue-400/50">
+          <div class="text-xs uppercase tracking-wide text-orange-300">Deporte</div>
+          <div class="text-base mt-1 font-mono">${formatMsToHuman(tDeporte.totalMs)}</div>
+          <div class="text-[11px] text-slate-500">${tDeporte.sessions} presets</div>
+        </div>
+
       </div>
+    </section>
 
-    </div>
-  `;
+    <!-- 📊 ÚLTIMOS 7 DÍAS -->
+    <section class="space-y-4 stats-section">
+      <h2 class="text-sm text-slate-400 uppercase tracking-wide pl-1">Últimos 7 días</h2>
+
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow}">
+        <div id="stats-chart-7d" class="h-48 w-full"></div>
+      </div>
+    </section>
+
+    <!-- ⚠️ RESET -->
+    <section class="pt-2 text-center">
+      <button
+        id="stats-reset"
+        class="px-4 py-2 rounded-lg border border-red-800/50 text-red-300 bg-red-900/20 hover:bg-red-900/40 transition-colors"
+      >
+        Reiniciar estadísticas
+      </button>
+    </section>
+
+  </div>
+`;
+
 }

@@ -187,7 +187,7 @@ function goToNextIntervalOrFinish() {
     }
 
     const stats = getStats();
-    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const today = new Date().toISOString().slice(0, 10);
 
     if (!stats.byDay[today]) {
       stats.byDay[today] = {
@@ -196,7 +196,20 @@ function goToNextIntervalOrFinish() {
       };
     }
 
+    const sessionMs = timerState.originalTotalMs || 0;
+    stats.byDay[today].totalMs += sessionMs;
     stats.byDay[today].sessions += 1;
+
+    // 👇 NUEVO: sumar por tipo de preset (trabajo / estudio / deporte)
+    const mode = timerState.baseMode || "trabajo"; // baseMode ya lo usas para el tema
+
+    if (!stats.modes) stats.modes = {};
+    if (!stats.modes[mode]) {
+      stats.modes[mode] = { totalMs: 0, sessions: 0 };
+    }
+
+    stats.modes[mode].totalMs += sessionMs;
+    stats.modes[mode].sessions += 1;
 
     saveStats(stats);
 
@@ -208,7 +221,6 @@ function goToNextIntervalOrFinish() {
     timerState.baseMode = null;
 
     timerState.statusMessage = "Preset completado.";
-    recordSessionStats();
     notifyTimerListeners();
     return;
   }
