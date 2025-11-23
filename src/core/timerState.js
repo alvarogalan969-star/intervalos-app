@@ -4,8 +4,6 @@ import {
   saveStats,
   addSessionStats 
 } from "./storage.js";
-import { playIntervalSound, playCountdownBeep, playCountdownGo, playFinishSound  } from "./sound.js";
-
 
 const TICK_MS = 1000;
 
@@ -175,7 +173,6 @@ function goToNextIntervalOrFinish() {
       timerState.timerId = null;
     }
 
-    playFinishSound();
 
     if (typeof confetti === "function") {
       confetti({
@@ -232,15 +229,6 @@ function goToNextIntervalOrFinish() {
   }
 
   const current = timerState.intervals[timerState.currentIntervalIndex];
-  if (current) {
-    // 👇 si es descanso, usamos el modo base (trabajo/estudio/deporte)
-    const soundMode =
-      current.modo === "descanso"
-        ? (timerState.baseMode || "trabajo")
-        : current.modo;
-
-    playIntervalSound(soundMode);
-  }
 
   resetRemainingFromCurrentInterval();
   timerState.status = "paused";
@@ -348,9 +336,6 @@ export function startCountdownThenStartTimer() {
     timerState.countdownTimerId = null;
   }
 
-  // Primer beep
-  playCountdownBeep();
-
   let ticks = 0;
   timerState.countdownTimerId = setInterval(() => {
     ticks += 1;
@@ -359,7 +344,6 @@ export function startCountdownThenStartTimer() {
     if (value > 0) {
       timerState.countdownValue = value; // 2, luego 1
       notifyTimerListeners();
-      playCountdownBeep();
       return;
     }
 
@@ -369,9 +353,6 @@ export function startCountdownThenStartTimer() {
     timerState.countdownActive = false;
     timerState.countdownValue = 0;
     notifyTimerListeners();
-
-    // Bocina
-    playCountdownGo();
 
     // Arrancar el timer real (primer intervalo)
     startTimer();

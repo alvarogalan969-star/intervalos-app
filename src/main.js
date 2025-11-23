@@ -1,7 +1,7 @@
 import { TimerView } from "./views/timer/index.js";
 import { PresetsView } from "./views/presets/index.js";
 import { StatsView } from "./views/stats/index.js";
-import { SettingsView } from "./views/settings/index.js";
+import { SettingsView, initSettingsView } from "./views/settings/index.js";
 import { CreatePresetView } from "./views/presets/create.js";
 import { EditPresetView } from "./views/presets/edit.js";
 import { applyInitialTheme, updateTheme, updateActiveMode, getActiveMode } from "./core/theme.js";
@@ -25,7 +25,6 @@ import {
   timerState,
   startCountdownThenStartTimer,
 } from "./core/timerState.js";
-import { stopAllSounds } from "./core/sound.js";
 
 let lastAppliedMode = null;
 let circle = null;
@@ -197,6 +196,12 @@ function render() {
       initStatsChart();
     }, 20);
   }
+
+  if (path === "/settings") {
+    setTimeout(() => {
+      initSettingsView();
+    }, 0);
+  }
 }
 
 function initTimerCircle() {
@@ -274,7 +279,6 @@ function initStatsChart() {
   if (!el || !window.echarts) return;
 
   const { labels, values } = getLast7DaysSeriesForChart();
-  console.log(labels, values);
 
   const chart = echarts.init(el);
 
@@ -841,7 +845,6 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
-  stopAllSounds();
   startTimer();
 });
 
@@ -850,7 +853,6 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
-  stopAllSounds();
   stopTimer();
 });
 
@@ -859,7 +861,6 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
-  stopAllSounds();
   resetTimer();
 });
 
