@@ -38,10 +38,10 @@ export function EditPresetView({ id }) {
   const intervalMode = isUniform ? "uniforme" : "personalizado";
 
   function unitButtonClass(targetUnit) {
-    if (targetUnit === unidadBase) {
-      return "flex-1 py-2 rounded-lg bg-emerald-600 text-slate-900 border-emerald-500 hover:bg-emerald-500";
-    }
-    return "flex-1 py-2 rounded-lg btn-secondary";
+    const base = "flex-1 py-2 rounded-lg btn-secondary";
+    return targetUnit === unidadBase
+      ? base + " unit-selected"
+      : base;
   }
 
   // 🔥 NUEVA FILA adaptada a tema claro/oscuro
