@@ -84,9 +84,9 @@ body[data-theme="light"] {
 }
 
 .unit-selected {
-  background-color: #22c55e; /* verde tipo emerald */
+  background-color: rgb(5 150 105/var(--tw-bg-opacity)); /* verde tipo emerald */
   color: #0f172a;            /* texto oscuro */
-  border-color: #22c55e;
+  border-color: rgb(5 150 105/var(--tw-bg-opacity));
 }
 
 .text-muted {
