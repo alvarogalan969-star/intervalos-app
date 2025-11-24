@@ -31,6 +31,6 @@ export function getAccentClasses() {
   return {
     bg: "btn-primary",
     shadow: "shadow-md shadow-emerald-500/25",
-    tag: "preset-tag-neutral",
+    tag: "bg-slate-700/40 text-slate-100",
   };
 }

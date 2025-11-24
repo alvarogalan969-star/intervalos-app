@@ -62,7 +62,7 @@ const DEFAULT_PRESETS = [
 const DEFAULT_SETTINGS = {
   activeMode: "neutral",
   soundsEnabled: true,
-  notificationsEnabled: false,
+  notificationsEnabled: true,
   timeUnit: "minutes",
   sounds: {
     trabajo: {
