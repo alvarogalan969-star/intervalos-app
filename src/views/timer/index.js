@@ -59,35 +59,37 @@ export function TimerView() {
 
   return `
     <div class="flex justify-center px-4">
-      <div class="w-full max-w-md mt-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 ${shadow} space-y-6 backdrop-blur-sm transition-colors duration-500">
+      <div class="w-full max-w-md mt-8 p-6 rounded-2xl card ${shadow} timer-card space-y-6 backdrop-blur-sm transition-colors duration-500">
+        
         <h1 class="text-xl font-semibold text-center tracking-wide">
           Timer
         </h1>
 
         <div class="space-y-1 text-center">
           <div class="flex items-center justify-center gap-2">
-            <div id="timer-preset-name" class="text-sm text-slate-300 font-medium">
+            <div id="timer-preset-name" class="text-sm text-muted font-medium">
               ${presetName}
             </div>
 
             ${
               next0
                 ? `
-                  <span class="px-2 py-0.5 rounded-full text-xs bg-slate-800/70 border border-slate-700 text-slate-200">
+                  <span class="px-2 py-0.5 rounded-full text-xs card-soft">
                     ${formatIntervalLabel(next0)}
                   </span>
                 `
                 : ""
             }
           </div>
-          <div id="timer-status-message" class="text-xs text-slate-400 min-h-[1rem]">
+
+          <div id="timer-status-message" class="text-xs text-muted min-h-[1rem]">
             ${message}
           </div>
         </div>
 
-        <!-- CÍRCULO DEL TIMER (lo pinta ProgressBar.js) -->
+        <!-- CÍRCULO DEL TIMER -->
         <div class="flex justify-center">
-          <div class="relative w-64 h-64 rounded-full bg-slate-950/70 border border-slate-800 shadow-lg shadow-black/40">
+          <div class="relative w-64 h-64 rounded-full card-soft shadow-lg">
             <div id="timer-circle" class="w-64 h-64"></div>
 
             <div
@@ -103,7 +105,7 @@ export function TimerView() {
           ${
             next1
               ? `
-              <div class="text-[11px] uppercase tracking-wide text-slate-500 text-center">
+              <div class="text-[11px] uppercase tracking-wide text-muted text-center">
                 Siguientes intervalos
               </div>
             `
@@ -115,7 +117,7 @@ export function TimerView() {
               ? `
             <div 
               id="next-interval-1"
-              class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-800/80 border border-slate-700 text-s"
+              class="flex items-center justify-between px-3 py-2 rounded-lg card-soft"
             >
               <div class="font-semibold">
                 ${formatIntervalLabel(next1)}
@@ -133,7 +135,7 @@ export function TimerView() {
               ? `
             <div 
               id="next-interval-2"
-              class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/70 border border-slate-800 text-xs opacity-60 scale-95"
+              class="flex items-center justify-between px-3 py-2 rounded-lg card-soft opacity-60 scale-95 text-xs"
             >
               <div>
                 ${formatIntervalLabel(next2)}
@@ -154,15 +156,17 @@ export function TimerView() {
           >
             Start
           </button>
+
           <button
             id="timer-stop"
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors duration-300 w-full sm:w-auto"
+            class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 w-full sm:w-auto"
           >
             Stop
           </button>
+
           <button
             id="timer-reset"
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors duration-300 w-full sm:w-auto"
+            class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 w-full sm:w-auto"
           >
             Reset
           </button>
@@ -170,9 +174,9 @@ export function TimerView() {
       </div>
 
       <!-- Overlay de cuenta atrás -->
-        ${
-          showCountdown
-            ? `
+      ${
+        showCountdown
+          ? `
           <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/70">
             <div class="w-full max-w-md px-8">
               <div class="overflow-hidden">
@@ -185,9 +189,8 @@ export function TimerView() {
             </div>
           </div>
         `
-            : ""
-        }
-
+          : ""
+      }
     </div>
   `;
 }

@@ -159,23 +159,24 @@ export function SettingsView() {
 
   return `
     <div class="space-y-6 max-w-md mx-auto transition-colors duration-500">
+      
       <h1 class="text-2xl font-semibold text-center">Ajustes</h1>
 
       <!-- Tema -->
-      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} flex items-center justify-between gap-4">
+      <div class="p-4 rounded-xl card ${shadow} flex items-center justify-between gap-4">
         <div>
           <div class="font-medium">Tema</div>
         </div>
         <div class="flex gap-2">
           <button
             data-theme="light"
-            class="px-3 py-1.5 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600"
+            class="px-3 py-1.5 text-sm rounded-lg btn-secondary"
           >
             Claro
           </button>
           <button
             data-theme="dark"
-            class="px-3 py-1.5 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600"
+            class="px-3 py-1.5 text-sm rounded-lg btn-secondary"
           >
             Oscuro
           </button>
@@ -183,17 +184,12 @@ export function SettingsView() {
       </div>
 
       <!-- Sonido (collapse) -->
-      <details
-        class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 shadow shadow-white/40 items-center justify-between gap-4 group"
-      >
+      <details class="p-4 rounded-xl card ${shadow} group">
         <summary class="flex items-center justify-between cursor-pointer list-none">
 
-          <div>
-            <div class="font-medium">Sonido</div>
-          </div>
+          <div class="font-medium">Sonido</div>
 
           <div class="flex items-center gap-3">
-
             <!-- Volumen global -->
             <input
               type="range"
@@ -207,17 +203,17 @@ export function SettingsView() {
             <!-- Mute global -->
             <button
               type="button"
-              class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+              class="px-2 py-1 text-sm btn-secondary rounded"
               data-sound-mute-toggle
             >
               🔊
             </button>
           </div>
 
-          <!-- Nueva flecha -->
+          <!-- Flecha -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180"
+            class="w-4 h-4 text-muted transition-transform group-open:rotate-180"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -228,157 +224,78 @@ export function SettingsView() {
         </summary>
 
         <div class="overflow-hidden transition-all duration-500 max-h-0 group-open:max-h-[600px]">
-          <div class="mt-4 border-t border-slate-700 pt-4 space-y-4">
-            <div class="text-sm text-slate-400">
+          <div class="mt-4 border-t border-slate-700 dark:border-slate-700 border-slate-200 pt-4 space-y-4">
+            <div class="text-sm text-muted">
               Sonidos por modo (inicio y fin)
             </div>
 
-            <!-- Trabajo -->
-            <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-              <div class="font-medium text-sm">Trabajo</div>
-              <div class="flex flex-wrap gap-2">
-                <select
-                  class="bg-slate-700 text-sm px-2 py-1 rounded"
-                  data-sound-select
-                  data-mode="trabajo"
-                  data-kind="start"
-                >
-                  ${SOUND_OPTIONS}
-                </select>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
-                  data-sound-preview
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
-                  </svg>
-                </button>
-                <select
-                  class="bg-slate-700 text-sm px-2 py-1 rounded"
-                  data-sound-select
-                  data-mode="trabajo"
-                  data-kind="end"
-                >
-                  ${SOUND_OPTIONS}
-                </select>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
-                  data-sound-preview
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
-                  </svg>
-                </button>
+            ${["trabajo", "estudio", "deporte"]
+              .map(
+                (modo) => `
+              <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+                <div class="font-medium text-sm capitalize">${modo}</div>
+                <div class="flex flex-wrap gap-2">
+                  
+                  <select
+                    class="input-base text-sm px-2 py-1 rounded"
+                    data-sound-select
+                    data-mode="${modo}"
+                    data-kind="start"
+                  >
+                    ${SOUND_OPTIONS}
+                  </select>
+
+                  <button
+                    type="button"
+                    class="px-2 py-1 text-sm btn-secondary rounded"
+                    data-sound-preview
+                  >
+                    ▶
+                  </button>
+
+                  <select
+                    class="input-base text-sm px-2 py-1 rounded"
+                    data-sound-select
+                    data-mode="${modo}"
+                    data-kind="end"
+                  >
+                    ${SOUND_OPTIONS}
+                  </select>
+
+                  <button
+                    type="button"
+                    class="px-2 py-1 text-sm btn-secondary rounded"
+                    data-sound-preview
+                  >
+                    ▶
+                  </button>
+
+                </div>
               </div>
-            </div>
+            `
+              )
+              .join("")}
 
-            <!-- Estudio -->
-            <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-              <div class="font-medium text-sm">Estudio</div>
-              <div class="flex flex-wrap gap-2">
-                <select
-                  class="bg-slate-700 text-sm px-2 py-1 rounded"
-                  data-sound-select
-                  data-mode="estudio"
-                  data-kind="start"
-                >
-                  ${SOUND_OPTIONS}
-                </select>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
-                  data-sound-preview
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
-                  </svg>
-                </button>
-
-                <select
-                  class="bg-slate-700 text-sm px-2 py-1 rounded"
-                  data-sound-select
-                  data-mode="estudio"
-                  data-kind="end"
-                >
-                  ${SOUND_OPTIONS}
-                </select>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
-                  data-sound-preview
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
-                  </svg>
-                </button>
-
-              </div>
-            </div>
-
-            <!-- Deporte -->
-            <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-              <div class="font-medium text-sm">Deporte</div>
-              <div class="flex flex-wrap gap-2">
-                <select
-                  class="bg-slate-700 text-sm px-2 py-1 rounded"
-                  data-sound-select
-                  data-mode="deporte"
-                  data-kind="start"
-                >
-                  ${SOUND_OPTIONS}
-                </select>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
-                  data-sound-preview
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
-                  </svg>
-                </button>
-
-                <select
-                  class="bg-slate-700 text-sm px-2 py-1 rounded"
-                  data-sound-select
-                  data-mode="deporte"
-                  data-kind="end"
-                >
-                  ${SOUND_OPTIONS}
-                </select>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
-                  data-sound-preview
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </details>
 
       <!-- Notificaciones -->
-      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} flex items-center justify-between gap-4">
+      <div class="p-4 rounded-xl card ${shadow} flex items-center justify-between gap-4">
         <div>
           <div class="font-medium">Notificaciones</div>
-          <div class="text-sm text-slate-400">
-            Aviso cuando termine un intervalo o sesión
-          </div>
         </div>
 
         <button
           type="button"
           data-notifications-toggle
-          class="px-3 py-1.5 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center gap-2"
+          class="px-3 py-1.5 text-sm rounded-lg btn-secondary flex items-center gap-2"
         >
           <span data-notifications-icon>🔔</span>
           <span class="text-xs" data-notifications-label>On</span>
         </button>
       </div>
+
+    </div>
   `;
 }

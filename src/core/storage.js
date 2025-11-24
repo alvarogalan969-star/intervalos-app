@@ -60,7 +60,6 @@ const DEFAULT_PRESETS = [
 ];
 
 const DEFAULT_SETTINGS = {
-  theme: "dark",
   activeMode: "neutral",
   soundsEnabled: true,
   notificationsEnabled: false,

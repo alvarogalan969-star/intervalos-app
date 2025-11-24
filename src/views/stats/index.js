@@ -55,110 +55,111 @@ export function StatsView() {
   const tDeporte = modeStats.deporte;
 
   return `
-  <div class="space-y-10 max-w-xl mx-auto transition-colors duration-500">
+    <div class="space-y-10 max-w-xl mx-auto transition-colors duration-500">
 
-    <!-- TÍTULO -->
-    <h1 class="text-2xl font-semibold text-center">Estadísticas</h1>
+      <!-- TÍTULO -->
+      <h1 class="text-2xl font-semibold text-center">Estadísticas</h1>
 
-    <!-- 🎯 RESUMEN GENERAL -->
-    <section class="space-y-4 stats-section">
-      <h2 class="text-sm text-slate-400 uppercase tracking-wide pl-1">Resumen</h2>
+      <!-- 🎯 RESUMEN GENERAL -->
+      <section class="space-y-4 stats-section">
+        <h2 class="text-sm text-muted uppercase tracking-wide pl-1">Resumen</h2>
 
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-        <!-- Tiempo total -->
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-600/80">
-          <div class="text-sm text-slate-400 flex items-center gap-2">
-            <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
-              viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 6v6l4 2"></path>
-              <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-            Tiempo total
+          <!-- Tiempo total -->
+          <div class="p-4 rounded-xl card ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
+            <div class="text-sm text-muted flex items-center gap-2">
+              <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 6v6l4 2"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+              </svg>
+              Tiempo total
+            </div>
+            <div class="text-xl mt-1 font-mono tracking-tight">${formatMsToHuman(totalMs)}</div>
           </div>
-          <div class="text-xl mt-1 font-mono tracking-tight">${formatMsToHuman(totalMs)}</div>
-        </div>
 
-        <!-- Completadas -->
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-600/80">
-          <div class="text-sm text-slate-400 flex items-center gap-2">
-            <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
-              viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 3v18l7-5 7 5V3z"></path>
-            </svg>
-            Completados
+          <!-- Completadas -->
+          <div class="p-4 rounded-xl card ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
+            <div class="text-sm text-muted flex items-center gap-2">
+              <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 3v18l7-5 7 5V3z"></path>
+              </svg>
+              Completados
+            </div>
+            <div class="text-xl mt-1 font-mono tracking-tight">${totalSessions}</div>
           </div>
-          <div class="text-xl mt-1 font-mono tracking-tight">${totalSessions}</div>
-        </div>
 
-        <!-- Racha -->
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-600/80">
-          <div class="text-sm text-slate-400 flex items-center gap-2">
-            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" stroke-width="2"
-              viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2C9 5 9 7.5 10 9.5C8.5 10 7 11.5 7 13.5C7 16 9 18 12 18C15 18 17 16 17 13.5C17 11.5 15.5 10 14 9.5C15 7.5 15 5 12 2Z"></path>
-            </svg>
-            Racha
+          <!-- Racha -->
+          <div class="p-4 rounded-xl card ${shadow} min-h-[110px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
+            <div class="text-sm text-muted flex items-center gap-2">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C9 5 9 7.5 10 9.5C8.5 10 7 11.5 7 13.5C7 16 9 18 12 18C15 18 17 16 17 13.5C17 11.5 15.5 10 14 9.5C15 7.5 15 5 12 2Z"></path>
+              </svg>
+              Racha
+            </div>
+            <div class="text-sm mt-1 font-mono leading-tight">
+              Actual: ${streakCurrent} días<br/>
+              Mejor: ${streakBest} días
+            </div>
           </div>
-          <div class="text-sm mt-1 font-mono leading-tight">
-            Actual: ${streakCurrent} días<br/>
-            Mejor: ${streakBest} días
+
+        </div>
+      </section>
+
+      <!-- 🟦 POR TIPO DE PRESET -->
+      <section class="space-y-4 stats-section">
+        <h2 class="text-sm text-muted uppercase tracking-wide pl-1">Por tipo de preset</h2>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+
+          <!-- Trabajo -->
+          <div class="p-4 rounded-xl preset-card preset-card-trabajo transition-transform duration-200 hover:-translate-y-0.5">
+            <div class="preset-label preset-label-trabajo">Trabajo</div>
+            <div class="text-base mt-1 font-mono">${formatMsToHuman(tTrabajo.totalMs)}</div>
+            <div class="text-[11px] text-muted">${tTrabajo.sessions} presets</div>
           </div>
+
+          <!-- Estudio -->
+          <div class="p-4 rounded-xl preset-card preset-card-estudio transition-transform duration-200 hover:-translate-y-0.5">
+            <div class="preset-label preset-label-estudio">Estudio</div>
+            <div class="text-base mt-1 font-mono">${formatMsToHuman(tEstudio.totalMs)}</div>
+            <div class="text-[11px] text-muted">${tEstudio.sessions} presets</div>
+          </div>
+
+          <!-- Deporte -->
+          <div class="p-4 rounded-xl preset-card preset-card-deporte transition-transform duration-200 hover:-translate-y-0.5">
+            <div class="preset-label preset-label-deporte">Deporte</div>
+            <div class="text-base mt-1 font-mono">${formatMsToHuman(tDeporte.totalMs)}</div>
+            <div class="text-[11px] text-muted">${tDeporte.sessions} presets</div>
+          </div>
+
         </div>
+      </section>
 
-      </div>
-    </section>
+      <!-- 📊 ÚLTIMOS 7 DÍAS -->
+      <section class="space-y-4 stats-section">
+        <h2 class="text-sm text-muted uppercase tracking-wide pl-1">Últimos 7 días</h2>
 
-    <!-- 🟦 POR TIPO DE PRESET -->
-    <section class="space-y-4 stats-section">
-      <h2 class="text-sm text-slate-400 uppercase tracking-wide pl-1">Por tipo de preset</h2>
-
-      <div class="grid gap-4 sm:grid-cols-3">
-
-        <!-- Trabajo -->
-        <div class="p-4 rounded-xl bg-blue-600/10 border border-blue-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:border-blue-400/50">
-          <div class="text-xs uppercase tracking-wide text-blue-300">Trabajo</div>
-          <div class="text-base mt-1 font-mono">${formatMsToHuman(tTrabajo.totalMs)}</div>
-          <div class="text-[11px] text-slate-500">${tTrabajo.sessions} presets</div>
+        <div class="p-4 rounded-xl card ${shadow}">
+          <div id="stats-chart-7d" class="h-48 w-full"></div>
         </div>
+      </section>
 
-        <!-- Estudio -->
-        <div class="p-4 rounded-xl bg-emerald-600/10 border border-emerald-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:border-blue-400/50">
-          <div class="text-xs uppercase tracking-wide text-emerald-300">Estudio</div>
-          <div class="text-base mt-1 font-mono">${formatMsToHuman(tEstudio.totalMs)}</div>
-          <div class="text-[11px] text-slate-500">${tEstudio.sessions} presets</div>
-        </div>
+      <!-- ⚠️ RESET -->
+      <section class="pt-2 text-center">
+        <button
+          id="stats-reset"
+          class="btn-danger px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          Reiniciar estadísticas
+        </button>
+      </section>
 
-        <!-- Deporte -->
-        <div class="p-4 rounded-xl bg-orange-600/10 border border-orange-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:border-blue-400/50">
-          <div class="text-xs uppercase tracking-wide text-orange-300">Deporte</div>
-          <div class="text-base mt-1 font-mono">${formatMsToHuman(tDeporte.totalMs)}</div>
-          <div class="text-[11px] text-slate-500">${tDeporte.sessions} presets</div>
-        </div>
+    </div>
+  `;
 
-      </div>
-    </section>
-
-    <!-- 📊 ÚLTIMOS 7 DÍAS -->
-    <section class="space-y-4 stats-section">
-      <h2 class="text-sm text-slate-400 uppercase tracking-wide pl-1">Últimos 7 días</h2>
-
-      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow}">
-        <div id="stats-chart-7d" class="h-48 w-full"></div>
-      </div>
-    </section>
-
-    <!-- ⚠️ RESET -->
-    <section class="pt-2 text-center">
-      <button
-        id="stats-reset"
-        class="px-4 py-2 rounded-lg border border-red-800/50 text-red-300 bg-red-900/20 hover:bg-red-900/40 transition-colors"
-      >
-        Reiniciar estadísticas
-      </button>
-    </section>
-
-  </div>
-`;
 
 }

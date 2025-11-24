@@ -275,6 +275,37 @@ function getLast7DaysSeriesForChart() {
   return { labels, values };
 }
 
+function getChartColors() {
+  const theme = document.body.dataset.theme || "dark";
+
+  if (theme === "light") {
+    return {
+      tooltipBg: "rgba(255,255,255,0.95)",
+      tooltipBorder: "rgba(0,0,0,0.1)",
+      tooltipText: "#1e293b",
+      shadow: "rgba(0,0,0,0.05)",
+      axisLine: "#94a3b8",      // slate-400
+      axisLabel: "#475569",     // slate-600
+      splitLine: "#e2e8f0",     // slate-200
+      barFrom: "#4ade80",       // verde claro
+      barTo: "#15803d",         // verde oscuro
+    };
+  }
+
+  // dark theme
+  return {
+    tooltipBg: "rgba(15,23,42,0.96)",
+    tooltipBorder: "#1e293b",
+    tooltipText: "#e5e7eb",
+    shadow: "rgba(15,23,42,0.65)",
+    axisLine: "#64748b",
+    axisLabel: "#cbd5f5",
+    splitLine: "#1e293b",
+    barFrom: "#034111ff",
+    barTo: "#4ade80",
+  };
+}
+
 function initStatsChart() {
   const el = document.getElementById("stats-chart-7d");
   if (!el || !window.echarts) return;
@@ -283,73 +314,71 @@ function initStatsChart() {
 
   const chart = echarts.init(el);
 
-  chart.setOption({
-    tooltip: {
+  const C = getChartColors();
+
+chart.setOption({
+  tooltip: {
     trigger: "axis",
-    backgroundColor: "rgba(15,23,42,0.96)",   // bg-slate-900 aprox
-    borderColor: "#1e293b",                   // border-slate-800
+    backgroundColor: C.tooltipBg,
+    borderColor: C.tooltipBorder,
     borderWidth: 1,
     padding: [8, 10],
     textStyle: {
-      color: "#e5e7eb",                       // text-slate-200
+      color: C.tooltipText,
       fontSize: 11,
       fontFamily:
         'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
     },
     axisPointer: {
       type: "shadow",
-      shadowStyle: {
-        color: "rgba(15,23,42,0.65)",         // sombra suave bajo la barra
-      },
+      shadowStyle: { color: C.shadow },
     },
     formatter: (params) => {
       const p = params[0];
-      // p.axisValue = "lun", "mar"...
-      // p.data = minutos
       return `
         <div style="display:flex;flex-direction:column;gap:2px;">
-          <span style="font-size:11px;opacity:0.8;">${p.axisValue}</span>
+          <span style="font-size:11px;opacity:0.7;">${p.axisValue}</span>
           <span style="font-size:12px;font-weight:500;">${p.data} min</span>
         </div>
       `;
     },
   },
-    grid: { left: 30, right: 10, top: 20, bottom: 25 },
-    xAxis: {
-      type: "category",
-      data: labels,
-      axisLine: { lineStyle: { color: "#64748b" } },
-      axisLabel: { color: "#cbd5f5", fontSize: 10 },
-    },
-    yAxis: {
-      type: "value",
-      axisLine: { show: false },
-      splitLine: { lineStyle: { color: "#1e293b" } },
-      axisLabel: { color: "#94a3b8", fontSize: 10 },
-      nameTextStyle: { color: "#94a3b8", fontSize: 10, padding: [0, 0, 0, -10] },
-    },
-    series: [
-      {
-        type: "bar",
-        data: values,
-        barWidth: "50%",
-        itemStyle: {
-          borderRadius: [6, 6, 0, 0],
-          color: {
-            type: "linear",
-            x: 0,
-            y: 1,
-            x2: 0,
-            y2: 0,
-            colorStops: [
-              { offset: 0, color: "#034111ff" },
-              { offset: 1, color: "#4ade80" },
-            ],
-          },
+
+  grid: { left: 30, right: 10, top: 20, bottom: 25 },
+
+  xAxis: {
+    type: "category",
+    data: labels,
+    axisLine: { lineStyle: { color: C.axisLine } },
+    axisLabel: { color: C.axisLabel, fontSize: 10 },
+  },
+
+  yAxis: {
+    type: "value",
+    axisLine: { show: false },
+    splitLine: { lineStyle: { color: C.splitLine } },
+    axisLabel: { color: C.axisLabel, fontSize: 10 },
+  },
+
+  series: [
+    {
+      type: "bar",
+      data: values,
+      barWidth: "50%",
+      itemStyle: {
+        borderRadius: [6, 6, 0, 0],
+        color: {
+          type: "linear",
+          x: 0, y: 1, x2: 0, y2: 0,
+          colorStops: [
+            { offset: 0, color: C.barFrom },
+            { offset: 1, color: C.barTo },
+          ],
         },
       },
-    ],
-  });
+    },
+  ],
+});
 
   // opcional: resize al cambiar tamaño de ventana
   window.addEventListener("resize", () => {
@@ -371,7 +400,7 @@ window.addEventListener("load", () => {
 
 document.addEventListener("click", (event) => {
   // 1) Cambio de tema
-  const themeButton = event.target.closest("[data-theme]");
+  const themeButton = event.target.closest("button[data-theme]");
   if (themeButton) {
     event.preventDefault();
     const theme = themeButton.getAttribute("data-theme");
@@ -415,20 +444,22 @@ document.addEventListener("click", (event) => {
 
     const mode = intervalModeButton.getAttribute("data-interval-mode");
 
-    // Actualizamos el hidden
     const hiddenInput = form.querySelector('input[name="interval-mode"]');
     if (hiddenInput) {
       hiddenInput.value = mode;
     }
 
-    // Estilos de los botones
+    // Estilos de los botones (usamos estados semánticos)
     const buttons = form.querySelectorAll("[data-interval-mode]");
     buttons.forEach((btn) => {
-      btn.classList.remove("bg-emerald-600", "text-slate-900");
-      btn.classList.add("bg-slate-800", "border", "border-slate-700", "text-slate-100");
+      btn.classList.remove(
+        "bg-emerald-600",
+        "text-slate-900"
+      );
+      btn.classList.add("btn-secondary");
     });
 
-    intervalModeButton.classList.remove("bg-slate-800", "border-slate-700", "text-slate-100");
+    intervalModeButton.classList.remove("btn-secondary");
     intervalModeButton.classList.add("bg-emerald-600", "text-slate-900");
 
     // Mostrar / ocultar secciones
@@ -445,6 +476,7 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+
   const addIntervalButton = event.target.closest("[data-add-interval]");
   if (addIntervalButton) {
     event.preventDefault();
@@ -458,11 +490,11 @@ document.addEventListener("click", (event) => {
     const rowHtml = `
       <div
         data-interval-row
-        class="flex items-center gap-2 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2"
+        class="flex items-center gap-2 card-soft px-3 py-2"
       >
         <select
           name="tipo-intervalo"
-          class="px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+          class="px-2 py-1 rounded input-base text-sm focus:outline-none focus:border-slate-500"
         >
           <option value="actividad">Actividad</option>
           <option value="descanso">Descanso</option>
@@ -472,13 +504,13 @@ document.addEventListener("click", (event) => {
           type="number"
           name="duracion"
           placeholder="Tiempo"
-          class="w-20 px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+          class="w-20 px-2 py-1 rounded input-base text-sm focus:outline-none focus:border-slate-500"
           min="1"
         />
 
         <select
           name="unidad-fila"
-          class="px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+          class="px-2 py-1 rounded input-base text-sm focus:outline-none focus:border-slate-500"
         >
           <option value="seconds">s</option>
           <option value="minutes" selected>min</option>
@@ -488,7 +520,7 @@ document.addEventListener("click", (event) => {
         <button
           type="button"
           data-remove-interval-row
-          class="ml-auto text-slate-400 hover:text-red-400 text-xs"
+          class="ml-auto text-muted hover:text-red-400 text-xs"
           title="Eliminar intervalo"
         >
           ✕
@@ -730,6 +762,7 @@ document.addEventListener("submit", (event) => {
     navigate("/presets");
     return;
   }
+
 });
 
 

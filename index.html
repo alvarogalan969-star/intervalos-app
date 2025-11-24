@@ -15,13 +15,136 @@
 </head>
 <body class="min-h-screen bg-slate-900 text-slate-100">
     
-    <nav class="p-4 flex gap-4">
-        <a href="/" data-link>Inicio</a>
-        <a href="/presets" data-link>Intervalos</a>
-        <a href="/stats" data-link>Estadísticas</a>
-        <a href="/settings" data-link>Ajustes</a>
-    </nav>
-    
+    <header class="bg-transparent">
+        <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
+            <div class="flex lg:flex-1">
+            <a href="/" data-link class="-m-1.5 p-1.5">
+                <img
+                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
+                alt=""
+                class="h-8 w-auto"
+                />
+            </a>
+            </div>
+
+            <!-- Botón menú móvil -->
+            <div class="flex lg:hidden">
+            <button
+                type="button"
+                command="show-modal"
+                commandfor="mobile-menu"
+                class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-muted"
+            >
+                <span class="sr-only">Open main menu</span>
+                <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                data-slot="icon"
+                aria-hidden="true"
+                class="size-6"
+                >
+                <path
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+                </svg>
+            </button>
+            </div>
+
+            <!-- Navegación desktop -->
+            <div class="hidden lg:flex lg:gap-x-12">
+            <a href="/presets" data-link class="nav-link text-sm/6 font-semibold cursor-pointer">
+                Rutinas
+            </a>
+            <a href="/stats" data-link class="nav-link text-sm/6 font-semibold cursor-pointer">
+                Estadísticas
+            </a>
+            </div>
+
+            <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+            <a href="/settings" data-link class="nav-link text-sm/6 font-semibold">
+                Ajustes <span aria-hidden="true">&rarr;</span>
+            </a>
+            </div>
+        </nav>
+
+        <!-- Menú móvil -->
+        <el-dialog>
+            <dialog id="mobile-menu" class="backdrop:bg-black/40 lg:hidden">
+            <div tabindex="0" class="fixed inset-0 focus:outline-none flex justify-end">
+                <el-dialog-panel
+                class="panel-mobile fixed inset-y-0 right-0 z-50 w-full overflow-y-auto sm:max-w-sm sm:ring-1"
+                >
+                <div class="flex items-center justify-end">
+                    <button
+                    type="button"
+                    command="close"
+                    commandfor="mobile-menu"
+                    class="-m-2.5 rounded-md p-2.5 text-muted"
+                    >
+                    <span class="sr-only">Close menu</span>
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        data-slot="icon"
+                        aria-hidden="true"
+                        class="size-6"
+                    >
+                        <path
+                        d="M6 18 18 6M6 6l12 12"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        />
+                    </svg>
+                    </button>
+                </div>
+                <div class="mt-6 flow-root">
+                    <div class="-my-6 divide-y divide-gray-500/10">
+                    <div class="space-y-2 py-6">
+                        <a
+                        href="/"
+                        data-link
+                        class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold nav-link-mobile"
+                        >
+                        Inicio
+                        </a>
+                        <a
+                        href="/presets"
+                        data-link
+                        class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold nav-link-mobile"
+                        >
+                        Rutinas
+                        </a>
+                        <a
+                        href="/stats"
+                        data-link
+                        class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold nav-link-mobile"
+                        >
+                        Estadísticas
+                        </a>
+                    </div>
+                    <div class="py-6">
+                        <a
+                        href="/settings"
+                        data-link
+                        class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold nav-link-mobile"
+                        >
+                        Ajustes
+                        </a>
+                    </div>
+                    </div>
+                </div>
+                </el-dialog-panel>
+            </div>
+            </dialog>
+        </el-dialog>
+        </header>
+
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div id="app"></div>
     </main>

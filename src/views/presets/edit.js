@@ -21,20 +21,12 @@ export function EditPresetView({ id }) {
   function esUniforme() {
     if (intervalos.length === 0) return true;
 
-    if (
-      !actividadIntervals.every(
-        (i) => i.duracion === actividad && (i.unidad || unidadBase) === unidadBase
-      )
-    ) {
+    if (!actividadIntervals.every((i) => i.duracion === actividad && (i.unidad || unidadBase) === unidadBase)) {
       return false;
     }
 
     if (descansoIntervals.length > 0) {
-      if (
-        !descansoIntervals.every(
-          (i) => i.duracion === descanso && (i.unidad || unidadBase) === unidadBase
-        )
-      ) {
+      if (!descansoIntervals.every((i) => i.duracion === descanso && (i.unidad || unidadBase) === unidadBase)) {
         return false;
       }
     }
@@ -46,14 +38,13 @@ export function EditPresetView({ id }) {
   const intervalMode = isUniform ? "uniforme" : "personalizado";
 
   function unitButtonClass(targetUnit) {
-    const base =
-      "flex-1 py-2 rounded-lg border text-sm transition-colors duration-150";
     if (targetUnit === unidadBase) {
-      return `${base} bg-emerald-600 border-emerald-500 text-slate-900 hover:bg-emerald-500`;
+      return "flex-1 py-2 rounded-lg bg-emerald-600 text-slate-900 border-emerald-500 hover:bg-emerald-500";
     }
-    return `${base} bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700`;
+    return "flex-1 py-2 rounded-lg btn-secondary";
   }
 
+  // 🔥 NUEVA FILA adaptada a tema claro/oscuro
   function renderCustomRows() {
     if (!intervalos.length) return "";
     return intervalos
@@ -63,13 +54,10 @@ export function EditPresetView({ id }) {
         const duracion = intervalo.duracion || 0;
 
         return `
-          <div
-            data-interval-row
-            class="flex items-center gap-2 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2"
-          >
+          <div data-interval-row class="flex items-center gap-2 card-soft px-3 py-2">
             <select
               name="tipo-intervalo"
-              class="px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+              class="px-2 py-1 rounded input-base text-sm"
             >
               <option value="actividad" ${tipoIntervalo === "actividad" ? "selected" : ""}>Actividad</option>
               <option value="descanso" ${tipoIntervalo === "descanso" ? "selected" : ""}>Descanso</option>
@@ -80,13 +68,13 @@ export function EditPresetView({ id }) {
               name="duracion"
               value="${duracion}"
               placeholder="Tiempo"
-              class="w-20 px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+              class="w-20 px-2 py-1 rounded input-base text-sm"
               min="1"
             />
 
             <select
               name="unidad-fila"
-              class="px-2 py-1 rounded bg-slate-900/80 border border-slate-700 text-sm focus:outline-none focus:border-slate-500"
+              class="px-2 py-1 rounded input-base text-sm"
             >
               <option value="seconds" ${unidadFila === "seconds" ? "selected" : ""}>s</option>
               <option value="minutes" ${unidadFila === "minutes" ? "selected" : ""}>min</option>
@@ -96,8 +84,7 @@ export function EditPresetView({ id }) {
             <button
               type="button"
               data-remove-interval-row
-              class="ml-auto text-slate-400 hover:text-red-400 text-xs"
-              title="Eliminar intervalo"
+              class="ml-auto text-muted hover:text-red-400 text-xs"
             >
               ✕
             </button>
@@ -109,22 +96,12 @@ export function EditPresetView({ id }) {
 
   const filasPersonalizadas = renderCustomRows();
 
-  const uniformBtnActive =
-    "flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 font-medium";
-  const uniformBtnInactive =
-    "flex-1 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-100";
-  const customBtnActive = uniformBtnActive;
-  const customBtnInactive = uniformBtnInactive;
+  // 🔥 Estilos semánticos para botones uniforme/personalizado
+  const activeBtn = "flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 font-medium";
+  const inactiveBtn = "flex-1 py-2 rounded-lg btn-secondary font-medium";
 
-  const uniformBtnClasses =
-    intervalMode === "uniforme" ? uniformBtnActive : uniformBtnInactive;
-  const customBtnClasses =
-    intervalMode === "personalizado" ? customBtnActive : customBtnInactive;
-
-  const uniformSectionClasses =
-    "space-y-4 mt-4" + (intervalMode === "uniforme" ? "" : " hidden");
-  const customSectionClasses =
-    "space-y-3 mt-4" + (intervalMode === "personalizado" ? "" : " hidden");
+  const uniformBtnClasses = intervalMode === "uniforme" ? activeBtn : inactiveBtn;
+  const customBtnClasses = intervalMode === "personalizado" ? activeBtn : inactiveBtn;
 
   return `
     <div class="space-y-6 max-w-md mx-auto">
@@ -136,30 +113,29 @@ export function EditPresetView({ id }) {
 
         <!-- Nombre -->
         <div class="space-y-1">
-          <label class="text-sm text-slate-300">Nombre</label>
+          <label class="text-sm text-muted">Nombre</label>
           <input
             name="nombre"
             value="${preset.nombre}"
-            class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg focus:outline-none focus:border-slate-500"
+            class="w-full px-3 py-2 rounded-lg input-base"
           />
         </div>
 
         <!-- Tipo -->
         <div class="space-y-1 relative">
-          <label class="text-sm text-slate-300">Tipo de actividad</label>
-          <div class="space-y-1 relative">
-            <select
-              name="tipo"
-              class="w-full px-3 py-2 rounded-lg bg-slate-900/80 border border-slate-700 focus:outline-none focus:border-slate-500 appearance-none cursor-pointer"
-            >
-              <option value="trabajo" ${tipo === "trabajo" ? "selected" : ""}>Trabajo</option>
-              <option value="estudio" ${tipo === "estudio" ? "selected" : ""}>Estudio</option>
-              <option value="deporte" ${tipo === "deporte" ? "selected" : ""}>Deporte</option>
-            </select>
-          </div>
+          <label class="text-sm text-muted">Tipo de actividad</label>
+          <select
+            name="tipo"
+            class="w-full px-3 py-2 rounded-lg input-base appearance-none cursor-pointer"
+          >
+            <option value="trabajo" ${tipo === "trabajo" ? "selected" : ""}>Trabajo</option>
+            <option value="estudio" ${tipo === "estudio" ? "selected" : ""}>Estudio</option>
+            <option value="deporte" ${tipo === "deporte" ? "selected" : ""}>Deporte</option>
+          </select>
+
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 pointer-events-none"
+            class="w-4 h-4 text-muted absolute right-3 top-1/2 pointer-events-none"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -171,131 +147,77 @@ export function EditPresetView({ id }) {
 
         <!-- Tipo de preset -->
         <div class="space-y-1">
-          <label class="text-sm text-slate-300">Tipo de preset</label>
+          <label class="text-sm text-muted">Tipo de preset</label>
 
           <input type="hidden" name="interval-mode" value="${intervalMode}" />
 
           <div class="flex gap-2 text-sm">
-            <button
-              type="button"
-              data-interval-mode="uniforme"
-              class="${uniformBtnClasses}"
-            >
+            <button type="button" data-interval-mode="uniforme" class="${uniformBtnClasses}">
               Todos iguales
             </button>
 
-            <button
-              type="button"
-              data-interval-mode="personalizado"
-              class="${customBtnClasses}"
-            >
+            <button type="button" data-interval-mode="personalizado" class="${customBtnClasses}">
               Intervalos distintos
             </button>
           </div>
         </div>
 
-        <!-- Sección: preset TODOS IGUALES -->
-        <div data-interval-section="uniforme" class="${uniformSectionClasses}">
-          <!-- Duraciones -->
+        <!-- UNIFORME -->
+        <div data-interval-section="uniforme" class="space-y-4 mt-4 ${intervalMode === "personalizado" ? "hidden" : ""}">
           <div class="space-y-2">
-            <label class="text-sm text-slate-300">Duraciones</label>
+            <label class="text-sm text-muted">Duraciones</label>
             <div class="flex gap-3">
-              <input
-                type="number"
-                name="actividad"
-                value="${actividad}"
-                placeholder="Actividad"
-                class="w-1/2 px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg focus:outline-none focus:border-slate-500"
-              />
-              <input
-                type="number"
-                name="descanso"
-                value="${descanso}"
-                placeholder="Descanso"
-                class="w-1/2 px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg focus:outline-none focus:border-slate-500"
-              />
+              <input type="number" name="actividad" value="${actividad}" class="w-1/2 px-3 py-2 rounded-lg input-base" />
+              <input type="number" name="descanso" value="${descanso}" class="w-1/2 px-3 py-2 rounded-lg input-base" />
             </div>
           </div>
 
-          <!-- Bloques -->
           <div class="space-y-1">
-            <label class="text-sm text-slate-300">Número de bloques</label>
-            <input
-              type="number"
-              min="1"
-              name="bloques"
-              value="${bloques}"
-              class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg focus:outline-none focus:border-slate-500"
-            />
+            <label class="text-sm text-muted">Número de bloques</label>
+            <input type="number" min="1" name="bloques" value="${bloques}" class="w-full px-3 py-2 rounded-lg input-base" />
           </div>
 
-          <!-- Unidad -->
           <div class="space-y-2">
-            <label class="text-sm text-slate-300">Unidad de tiempo</label>
+            <label class="text-sm text-muted">Unidad de tiempo</label>
             <input type="hidden" name="unidad" value="${unidadBase}" />
 
             <div class="flex gap-2 mt-1">
-              <button
-                type="button"
-                data-unit="seconds"
-                class="${unitButtonClass("seconds")}"
-              >
-                Segundos
-              </button>
-
-              <button
-                type="button"
-                data-unit="minutes"
-                class="${unitButtonClass("minutes")}"
-              >
-                Minutos
-              </button>
-
-              <button
-                type="button"
-                data-unit="hours"
-                class="${unitButtonClass("hours")}"
-              >
-                Horas
-              </button>
+              <button type="button" data-unit="seconds" class="${unitButtonClass("seconds")}">Segundos</button>
+              <button type="button" data-unit="minutes" class="${unitButtonClass("minutes")}">Minutos</button>
+              <button type="button" data-unit="hours" class="${unitButtonClass("hours")}">Horas</button>
             </div>
           </div>
         </div>
 
-        <!-- Sección: preset INTERVALOS DISTINTOS -->
-        <div data-interval-section="personalizado" class="${customSectionClasses}">
-          <div class="text-sm text-slate-400">
-            Edita o añade intervalos de actividad y descanso con tiempos distintos.
+        <!-- PERSONALIZADO -->
+        <div data-interval-section="personalizado" class="space-y-3 mt-4 ${intervalMode === "uniforme" ? "hidden" : ""}">
+          <div class="text-sm text-muted">
+            Edita o añade intervalos personalizados.
           </div>
 
-          <div id="intervals-list" class="space-y-2">
-            ${filasPersonalizadas}
-          </div>
+          <div id="intervals-list" class="space-y-2">${filasPersonalizadas}</div>
 
           <button
             type="button"
             data-add-interval
-            class="w-full py-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-sm font-medium"
+            class="w-full py-2 rounded-lg btn-secondary text-sm font-medium"
           >
             + Añadir intervalo
           </button>
         </div>
 
         <!-- Acciones -->
-        <button
-          class="w-full px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 font-semibold shadow-md shadow-emerald-900/20 border border-emerald-700 transition-colors"
-        >
+        <button class="w-full px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 font-semibold">
           Guardar cambios
         </button>
 
         <button
           type="button"
           id="delete-preset"
-          class="w-full px-4 py-2 rounded-lg bg-red-600/80 hover:bg-red-500 text-slate-50 font-semibold shadow-md shadow-red-900/20 border border-red-700 transition-colors"
+          class="w-full px-4 py-2 rounded-lg bg-red-600/80 hover:bg-red-500 text-slate-50 font-semibold"
         >
           Eliminar preset
         </button>
-
       </form>
     </div>
   `;
