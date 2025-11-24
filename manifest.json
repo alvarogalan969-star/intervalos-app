@@ -1,0 +1,20 @@
+{
+  "name": "Intervalos",
+  "short_name": "Intervalos",
+  "icons": [
+    {
+      "src": "./assets/imagenes/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "./assets/imagenes/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a"
+}
