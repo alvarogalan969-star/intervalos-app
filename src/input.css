@@ -257,6 +257,40 @@ body.mode-neutral {
   --timer-border: rgba(148, 163, 184, 0.9);
 }
 
+.btn-primary {
+  padding: 0.5rem 1rem;        /* px-4 py-2 aprox */
+  border-radius: 0.5rem;       /* rounded-lg */
+  font-weight: 500;
+  font-size: 0.875rem;         /* text-sm */
+  border-width: 1px;
+  border-style: solid;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Tema oscuro */
+body[data-theme="dark"] .btn-primary {
+  background-color: #22c55e;   /* emerald-500 */
+  border-color: #16a34a;       /* emerald-600 */
+  color: #022c22;              /* casi negro verdoso */
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+}
+
+body[data-theme="dark"] .btn-primary:hover {
+  background-color: #4ade80;   /* emerald-400 */
+}
+
+/* Tema claro */
+body[data-theme="light"] .btn-primary {
+  background-color: #16a34a;   /* emerald-600 */
+  border-color: #15803d;       /* emerald-700 */
+  color: #f9fafb;              /* casi blanco */
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.30);
+}
+
+body[data-theme="light"] .btn-primary:hover {
+  background-color: #22c55e;   /* emerald-500 */
+}
+
 @keyframes countdown-slide {
   from {
     transform: translateX(-40%);
