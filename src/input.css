@@ -1,0 +1,306 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Transición suave al cambiar */
+body {
+  transition: box-shadow 0.4s ease;
+}
+
+body.page-timer.mode-neutral {
+  box-shadow: none !important;
+}
+
+body.page-timer.mode-trabajo {
+  --beat-color: rgba(59, 130, 246, 0.45);
+  box-shadow: inset 0 0 30px var(--beat-color);
+}
+
+body.page-timer.mode-estudio {
+  --beat-color: rgba(34, 197, 94, 0.45);
+  box-shadow: inset 0 0 30px var(--beat-color);
+}
+
+body.page-timer.mode-deporte {
+  --beat-color: rgba(249, 115, 22, 0.45);
+  box-shadow: inset 0 0 30px var(--beat-color);
+}
+
+body {
+  --bg: #020617;             /* slate-950 */
+  --fg: #e5e7eb;             /* slate-200 */
+  --surface: #020617;        /* fondo principal tarjetas oscuras */
+  --surface-soft: #0f172a;   /* slate-900 */
+  --border: #1f2937;         /* slate-800 */
+  --muted: #9ca3af;          /* slate-400 */
+}
+
+/* Tema oscuro (como ahora) */
+body[data-theme="dark"] {
+  --bg: #020617;             /* fondo página */
+  --fg: #e5e7eb;             /* texto principal */
+  --surface: #020617;        /* tarjetas principales */
+  --surface-soft: #0f172a;   /* tarjetas suaves / bloques */
+  --border: #1f2937;
+  --muted: #9ca3af;
+}
+
+/* Tema claro (opuesto) */
+body[data-theme="light"] {
+  --bg: #f3f4f6;             /* slate-100 */
+  --fg: #0f172a;             /* slate-900 */
+  --surface: #ffffff;        /* tarjetas blancas */
+  --surface-soft: #f9fafb;   /* gris muy claro */
+  --border: #e5e7eb;         /* slate-200 */
+  --muted: #6b7280;          /* slate-500 */
+}
+
+.card {
+  background-color: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem; /* rounded-xl */
+}
+
+.card-soft {
+  background-color: var(--surface-soft);
+  color: var(--fg);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+.input-base {
+  background-color: var(--surface-soft);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.btn-secondary {
+  background-color: var(--surface-soft);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.nav-link {
+  color: var(--fg);
+  transition: opacity 0.15s ease;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+}
+
+.nav-link-mobile {
+  color: var(--fg);
+  background-color: transparent;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+body[data-theme="light"] .nav-link-mobile:hover {
+  background-color: rgba(15, 23, 42, 0.04); /* gris muy suave */
+}
+
+body[data-theme="dark"] .nav-link-mobile:hover {
+  background-color: rgba(148, 163, 184, 0.08); /* slate-400 muy suave */
+}
+
+/* Panel lateral móvil */
+.panel-mobile {
+  background-color: var(--surface);
+  color: var(--fg);
+  padding: 1.5rem;
+  border-color: var(--border);
+}
+
+.btn-danger {
+  border-width: 1px;
+}
+
+/* Tema oscuro */
+body[data-theme="dark"] .btn-danger {
+  background-color: rgba(127, 29, 29, 0.3);   /* red-900/30 */
+  border-color: rgba(248, 113, 113, 0.4);     /* red-400-ish */
+  color: #fecaca;                             /* red-200 */
+}
+
+body[data-theme="dark"] .btn-danger:hover {
+  background-color: rgba(127, 29, 29, 0.6);
+}
+
+/* Tema claro */
+body[data-theme="light"] .btn-danger {
+  background-color: #fee2e2;   /* red-100 */
+  border-color: #fecaca;      /* red-200 */
+  color: #991b1b;             /* red-800 */
+}
+
+body[data-theme="light"] .btn-danger:hover {
+  background-color: #fecaca;  /* red-200 */
+}
+
+.preset-tag {
+  border-width: 1px;
+}
+
+/* --- Trabajo --- */
+body[data-theme="dark"] .preset-tag-trabajo {
+  background-color: rgba(37, 99, 235, 0.25);   /* azul */
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #bfdbfe; /* blue-200 */
+}
+body[data-theme="light"] .preset-tag-trabajo {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-color: rgba(37, 99, 235, 0.4);
+  color: #1d4ed8; /* blue-700 */
+}
+
+/* --- Estudio --- */
+body[data-theme="dark"] .preset-tag-estudio {
+  background-color: rgba(16, 185, 129, 0.25);
+  border-color: rgba(34, 197, 94, 0.6);
+  color: #bbf7d0; /* emerald-200 */
+}
+body[data-theme="light"] .preset-tag-estudio {
+  background-color: rgba(34, 197, 94, 0.10);
+  border-color: rgba(21, 128, 61, 0.4);
+  color: #15803d; /* emerald-700 */
+}
+
+/* --- Deporte --- */
+body[data-theme="dark"] .preset-tag-deporte {
+  background-color: rgba(249, 115, 22, 0.25);
+  border-color: rgba(249, 115, 22, 0.6);
+  color: #fed7aa; /* orange-200 */
+}
+body[data-theme="light"] .preset-tag-deporte {
+  background-color: rgba(249, 115, 22, 0.10);
+  border-color: rgba(194, 65, 12, 0.4);
+  color: #c2410c; /* orange-700 */
+}
+
+/* Tarjetas de estadísticas por tipo */
+.preset-card {
+  border-width: 1px;
+}
+
+/* Trabajo */
+body[data-theme="dark"] .preset-card-trabajo {
+  background-color: rgba(37, 99, 235, 0.15);
+  border-color: rgba(59, 130, 246, 0.45);
+}
+body[data-theme="light"] .preset-card-trabajo {
+  background-color: rgba(59, 130, 246, 0.07);
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+/* Estudio */
+body[data-theme="dark"] .preset-card-estudio {
+  background-color: rgba(16, 185, 129, 0.18);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+body[data-theme="light"] .preset-card-estudio {
+  background-color: rgba(34, 197, 94, 0.07);
+  border-color: rgba(21, 128, 61, 0.35);
+}
+
+/* Deporte */
+body[data-theme="dark"] .preset-card-deporte {
+  background-color: rgba(249, 115, 22, 0.18);
+  border-color: rgba(249, 115, 22, 0.45);
+}
+body[data-theme="light"] .preset-card-deporte {
+  background-color: rgba(249, 115, 22, 0.07);
+  border-color: rgba(194, 65, 12, 0.35);
+}
+
+/* Labels de título en stats */
+.preset-label {
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+body[data-theme="dark"] .preset-label-trabajo { color: #bfdbfe; }
+body[data-theme="light"] .preset-label-trabajo { color: #1d4ed8; }
+
+body[data-theme="dark"] .preset-label-estudio { color: #bbf7d0; }
+body[data-theme="light"] .preset-label-estudio { color: #15803d; }
+
+body[data-theme="dark"] .preset-label-deporte { color: #fed7aa; }
+body[data-theme="light"] .preset-label-deporte { color: #c2410c; }
+
+body.mode-trabajo {
+  --timer-glow: rgba(59, 130, 246, 0.55);   /* azul */
+  --timer-border: rgba(59, 130, 246, 0.9);
+}
+
+body.mode-estudio {
+  --timer-glow: rgba(34, 197, 94, 0.50);    /* verde */
+  --timer-border: rgba(34, 197, 94, 0.9);
+}
+
+body.mode-deporte {
+  --timer-glow: rgba(249, 115, 22, 0.55);   /* naranja */
+  --timer-border: rgba(249, 115, 22, 0.9);
+}
+
+/* Neutral (sin preset) */
+body.mode-neutral {
+  --timer-glow: rgba(148, 163, 184, 0.45);  /* slate */
+  --timer-border: rgba(148, 163, 184, 0.9);
+}
+
+@keyframes countdown-slide {
+  from {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.countdown-number {
+  animation: countdown-slide 0.35s ease-out;
+}
+
+@keyframes stats-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-section {
+  animation: stats-fade-up 0.35s ease-out;
+}
+
+@keyframes timerBeat {
+  0% {
+    box-shadow: 0 0 0 0 var(--timer-glow);
+  }
+  60% {
+    box-shadow: 0 0 0 16px rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+/* Cuando el timer late */
+body.page-timer.shadow-beat .timer-card {
+  border-color: var(--timer-border);
+  animation: timerBeat 0.9s ease-out;
+}

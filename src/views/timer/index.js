@@ -89,7 +89,7 @@ export function TimerView() {
 
         <!-- CÍRCULO DEL TIMER -->
         <div class="flex justify-center">
-          <div class="relative w-64 h-64 rounded-full card-soft shadow-lg">
+          <div class="relative w-64 h-64 rounded-full shadow-lg">
             <div id="timer-circle" class="w-64 h-64"></div>
 
             <div
