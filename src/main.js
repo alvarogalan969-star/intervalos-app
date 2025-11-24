@@ -389,6 +389,10 @@ chart.setOption({
 export function navigate(path) {
   history.pushState({}, "", path);
   render();
+
+  gtag('config', 'G-77D6MVLN13', {
+    page_path: path
+  });
 }
 
 window.addEventListener("popstate", render);
@@ -475,7 +479,6 @@ document.addEventListener("click", (event) => {
 
     return;
   }
-
 
   const addIntervalButton = event.target.closest("[data-add-interval]");
   if (addIntervalButton) {
