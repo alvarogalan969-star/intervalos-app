@@ -87,7 +87,7 @@ export function CreatePresetView() {
               <button
                 type="button"
                 data-unit="minutes"
-                class="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-sm"
+                class="flex-1 py-2 rounded-lg btn-secondary unit-selected text-sm"
               >
                 Minutos
               </button>

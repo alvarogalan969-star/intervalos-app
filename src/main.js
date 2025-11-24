@@ -427,14 +427,12 @@ document.addEventListener("click", (event) => {
 
       const buttons = form.querySelectorAll("[data-unit]");
       buttons.forEach((btn) => {
-        btn.classList.remove("bg-emerald-600", "text-slate-900");
-        btn.classList.add("bg-slate-800", "text-slate-100");
+        btn.classList.remove("unit-selected");
       });
 
-      unitButton.classList.remove("bg-slate-800", "text-slate-100");
-      unitButton.classList.add("bg-emerald-600", "text-slate-900");
+      unitButton.classList.add("unit-selected");
     }
-    
+
     return;
   }
 
@@ -552,6 +550,11 @@ document.addEventListener("click", (event) => {
 
   event.preventDefault();
   navigate(link.getAttribute("href"));
+
+  const mobileMenu = document.getElementById("mobile-menu");
+  if (mobileMenu && mobileMenu.open) {
+    mobileMenu.close();
+  }
 });
 
 // 4) Envío del formulario "Nuevo preset"
