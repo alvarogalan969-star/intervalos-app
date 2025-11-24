@@ -2,8 +2,11 @@ import {
   getPresets,
   getStats,
   saveStats,
-  addSessionStats 
+  addSessionStats ,
+  getSettings,
 } from "./storage.js";
+import { playSound } from "./sound.js";
+import { showNotification } from "./notifications.js";
 
 const TICK_MS = 1000;
 
@@ -164,15 +167,30 @@ function resetRemainingFromCurrentInterval() {
 }
 
 function goToNextIntervalOrFinish() {
+  const settings = getSettings();
+
+  // avanzar al siguiente intervalo
   timerState.currentIntervalIndex += 1;
 
   // 👉 Caso 1: se han terminado TODOS los intervalos
   if (timerState.currentIntervalIndex >= timerState.intervals.length) {
+    // 🔊 sonido fin de preset
+    const finalMode = timerState.baseMode || "trabajo";
+    const finalSound = settings.sounds[finalMode]?.end;
+    if (finalSound) playSound(finalSound);
+
+    // 🔔 notificación fin de rutina
+    if (settings.notificationsEnabled) {
+      showNotification(
+        "Rutina completada",
+        "Enhorabuena, ¡has acabado tu rutina!"
+      );
+    }
+
     if (timerState.timerId) {
       clearInterval(timerState.timerId);
       timerState.timerId = null;
     }
-
 
     if (typeof confetti === "function") {
       confetti({
@@ -187,24 +205,18 @@ function goToNextIntervalOrFinish() {
     const today = new Date().toISOString().slice(0, 10);
 
     if (!stats.byDay[today]) {
-      stats.byDay[today] = {
-        totalMs: 0,
-        sessions: 0,
-      };
+      stats.byDay[today] = { totalMs: 0, sessions: 0 };
     }
 
     const sessionMs = timerState.originalTotalMs || 0;
     stats.byDay[today].totalMs += sessionMs;
     stats.byDay[today].sessions += 1;
 
-    // 👇 NUEVO: sumar por tipo de preset (trabajo / estudio / deporte)
-    const mode = timerState.baseMode || "trabajo"; // baseMode ya lo usas para el tema
-
+    const mode = timerState.baseMode || "trabajo";
     if (!stats.modes) stats.modes = {};
     if (!stats.modes[mode]) {
       stats.modes[mode] = { totalMs: 0, sessions: 0 };
     }
-
     stats.modes[mode].totalMs += sessionMs;
     stats.modes[mode].sessions += 1;
 
@@ -212,8 +224,6 @@ function goToNextIntervalOrFinish() {
 
     timerState.status = "finished";
     timerState.remainingMs = 0;
-
-    // limpiar preset para volver a neutral
     timerState.intervals = [];
     timerState.baseMode = null;
 
@@ -222,17 +232,39 @@ function goToNextIntervalOrFinish() {
     return;
   }
 
-  // 👉 Caso 2: hay más intervalos → preparar el siguiente y PAUSAR
+  // 👉 Caso 2: hay más intervalos → sonar inicio del SIGUIENTE y pausar
+  const next = timerState.intervals[timerState.currentIntervalIndex];
+  if (next) {
+    const modeForNext =
+      next.modo === "descanso"
+        ? (timerState.baseMode || "trabajo")
+        : next.modo;
+
+    const startSound = settings.sounds[modeForNext]?.start;
+    if (startSound) playSound(startSound);
+  }
+
+  const prevIndex = timerState.currentIntervalIndex - 1;
+  const prev = timerState.intervals[prevIndex];
+
+  // 🔔 notificación fin de intervalo
+  if (settings.notificationsEnabled && prev) {
+    const tipo = prev.modo === "descanso" ? "Descanso" : "Actividad";
+    showNotification(
+      "Intervalo finalizado",
+      `El intervalo de ${tipo} ha terminado. Pulsa Start para continuar con el siguiente.`
+    );
+  }
+
   if (timerState.timerId) {
     clearInterval(timerState.timerId);
     timerState.timerId = null;
   }
 
-  const current = timerState.intervals[timerState.currentIntervalIndex];
-
   resetRemainingFromCurrentInterval();
   timerState.status = "paused";
-  timerState.statusMessage = "Intervalo completado. Pulsa Start para continuar.";
+  timerState.statusMessage =
+    "Intervalo completado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
 
@@ -242,7 +274,6 @@ export function startTimer() {
   if (timerState.status === "running") return;
 
   if (!timerState.intervals || timerState.intervals.length === 0) {
-    // No hay preset → ningún mensaje
     timerState.statusMessage = "Selecciona un preset para comenzar.";
     notifyTimerListeners();
     return;
@@ -261,7 +292,7 @@ export function startTimer() {
   }
 
   timerState.status = "running";
-  timerState.statusMessage = ""; 
+  timerState.statusMessage = "";
 
   // Por si hubiera un intervalo anterior
   if (timerState.timerId) {
@@ -272,16 +303,15 @@ export function startTimer() {
     timerState.remainingMs -= TICK_MS;
 
     if (timerState.remainingMs <= 0) {
-      // Evitamos números negativos
       timerState.remainingMs = 0;
       goToNextIntervalOrFinish();
       return;
     }
 
     notifyTimerListeners();
-
   }, TICK_MS);
 }
+
 
 export function stopTimer() {
   if (!timerState.intervals || timerState.intervals.length === 0) {
@@ -331,6 +361,9 @@ export function startCountdownThenStartTimer() {
   timerState.statusMessage = "Preparado...";
   notifyTimerListeners();
 
+  // 🔊 primer beep (3)
+  playSound("ui/countdown_beep");
+
   if (timerState.countdownTimerId) {
     clearInterval(timerState.countdownTimerId);
     timerState.countdownTimerId = null;
@@ -342,8 +375,15 @@ export function startCountdownThenStartTimer() {
     const value = 3 - ticks;
 
     if (value > 0) {
-      timerState.countdownValue = value; // 2, luego 1
+      // 2, luego 1
+      timerState.countdownValue = value;
       notifyTimerListeners();
+
+      // 🔊 beep en 2 y en 1
+      if (value === 2 || value === 1) {
+        playSound("ui/countdown_beep");
+      }
+
       return;
     }
 
@@ -354,7 +394,11 @@ export function startCountdownThenStartTimer() {
     timerState.countdownValue = 0;
     notifyTimerListeners();
 
+    // 🔊 sonido GO
+    playSound("ui/countdown_go");
+
     // Arrancar el timer real (primer intervalo)
     startTimer();
   }, 1000);
 }
+

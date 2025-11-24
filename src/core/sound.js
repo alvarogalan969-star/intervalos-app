@@ -43,3 +43,9 @@ export function setMuted(state) {
   settings.sounds.muted = state;
   saveSettings(settings);
 }
+
+export function stopAllSounds() {
+  // Detiene todos los sonidos que estén sonando ahora mismo
+  Howler.stop();
+}
+

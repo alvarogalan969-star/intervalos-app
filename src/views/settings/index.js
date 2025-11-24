@@ -1,6 +1,19 @@
 import { getAccentClasses } from "../../core/modeStyle.js";
 import { getSettings, saveSettings } from "../../core/storage.js";
-import { setGlobalVolume, setMuted, playSound } from "../../core/sound.js";
+import { setGlobalVolume, setMuted, playSound, stopAllSounds} from "../../core/sound.js";
+
+const SOUND_OPTIONS = `
+  <option value="alarm-327234">alarm-327234</option>
+  <option value="alarm-clock-90867">alarm-clock-90867</option>
+  <option value="bell-ringing-ii-98323">bell-ringing-ii-98323</option>
+  <option value="bell-sound-370341">bell-sound-370341</option>
+  <option value="chime-alert-demo-309545">chime-alert-demo-309545</option>
+  <option value="notification-bell-sound-376888">notification-bell-sound-376888</option>
+  <option value="simple-notification-152054">simple-notification-152054</option>
+  <option value="slow-ding-354125">slow-ding-354125</option>
+  <option value="winfantasia-6912">winfantasia-6912</option>
+  <option value="wow-423653">wow-423653</option>
+`;
 
 export function initSettingsView() {
   // --- Collapse (ya lo tienes) ---
@@ -68,9 +81,77 @@ export function initSettingsView() {
       saveSettings(settings);
 
       // Sonido de preview
+      stopAllSounds();
       playSound(sel.value);
     });
   });
+
+  // Botón de previsualización (▶)
+  const previewButtons = document.querySelectorAll("[data-sound-preview]");
+
+  previewButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      let select = btn.previousElementSibling;
+
+      while (select && !select.matches("[data-sound-select]")) {
+        select = select.previousElementSibling;
+      }
+
+      if (!select) return;
+
+      const soundFile = select.value;
+      stopAllSounds();
+      playSound(soundFile);
+    });
+  });
+
+    // --- Notificaciones (campana) ---
+  const notifBtn = document.querySelector("[data-notifications-toggle]");
+  if (notifBtn) {
+    const iconEl = notifBtn.querySelector("[data-notifications-icon]");
+    const labelEl = notifBtn.querySelector("[data-notifications-label]");
+
+    const applyNotifUI = () => {
+      const enabled = settings.notificationsEnabled;
+      if (enabled) {
+        iconEl.textContent = "🔔";
+        labelEl.textContent = "On";
+        notifBtn.classList.remove("opacity-50");
+      } else {
+        iconEl.textContent = "🔕";
+        labelEl.textContent = "Off";
+        notifBtn.classList.add("opacity-50");
+      }
+    };
+
+    applyNotifUI();
+
+    notifBtn.addEventListener("click", async () => {
+      // vibración corta (si el dispositivo lo soporta)
+      if ("vibrate" in navigator) {
+        navigator.vibrate(80);
+      }
+
+      // alternar estado
+      settings.notificationsEnabled = !settings.notificationsEnabled;
+      saveSettings(settings);
+      applyNotifUI();
+
+      // si se activan y hay API de notificaciones, pedimos permiso (una vez)
+      if (
+        settings.notificationsEnabled &&
+        "Notification" in window &&
+        Notification.permission === "default"
+      ) {
+        try {
+          await Notification.requestPermission();
+        } catch (e) {
+          console.warn("No se pudo solicitar permiso de notificaciones", e);
+        }
+      }
+    });
+  }
+
 }
 
 export function SettingsView() {
@@ -153,7 +234,7 @@ export function SettingsView() {
             </div>
 
             <!-- Trabajo -->
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
               <div class="font-medium text-sm">Trabajo</div>
               <div class="flex flex-wrap gap-2">
                 <select
@@ -162,23 +243,39 @@ export function SettingsView() {
                   data-mode="trabajo"
                   data-kind="start"
                 >
-                  <option value="chime-alert-demo-309545">Inicio 1</option>
-                  <option value="bell-sound-370341">Inicio 2</option>
+                  ${SOUND_OPTIONS}
                 </select>
+                <button
+                  type="button"
+                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+                  data-sound-preview
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
+                  </svg>
+                </button>
                 <select
                   class="bg-slate-700 text-sm px-2 py-1 rounded"
                   data-sound-select
                   data-mode="trabajo"
                   data-kind="end"
                 >
-                  <option value="winfantasia-6912">Fin 1</option>
-                  <option value="alarm-clock-90867">Fin 2</option>
+                  ${SOUND_OPTIONS}
                 </select>
+                <button
+                  type="button"
+                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+                  data-sound-preview
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
             <!-- Estudio -->
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
               <div class="font-medium text-sm">Estudio</div>
               <div class="flex flex-wrap gap-2">
                 <select
@@ -187,23 +284,41 @@ export function SettingsView() {
                   data-mode="estudio"
                   data-kind="start"
                 >
-                  <option value="bell-sound-370341">Inicio 1</option>
-                  <option value="chime-alert-demo-309545">Inicio 2</option>
+                  ${SOUND_OPTIONS}
                 </select>
+                <button
+                  type="button"
+                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+                  data-sound-preview
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
+                  </svg>
+                </button>
+
                 <select
                   class="bg-slate-700 text-sm px-2 py-1 rounded"
                   data-sound-select
                   data-mode="estudio"
                   data-kind="end"
                 >
-                  <option value="winfantasia-6912">Fin 1</option>
-                  <option value="alarm-clock-90867">Fin 2</option>
+                  ${SOUND_OPTIONS}
                 </select>
+                <button
+                  type="button"
+                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+                  data-sound-preview
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
+                  </svg>
+                </button>
+
               </div>
             </div>
 
             <!-- Deporte -->
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
               <div class="font-medium text-sm">Deporte</div>
               <div class="flex flex-wrap gap-2">
                 <select
@@ -212,18 +327,35 @@ export function SettingsView() {
                   data-mode="deporte"
                   data-kind="start"
                 >
-                  <option value="alarm-clock-90867">Inicio 1</option>
-                  <option value="chime-alert-demo-309545">Inicio 2</option>
+                  ${SOUND_OPTIONS}
                 </select>
+                <button
+                  type="button"
+                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+                  data-sound-preview
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
+                  </svg>
+                </button>
+
                 <select
                   class="bg-slate-700 text-sm px-2 py-1 rounded"
                   data-sound-select
                   data-mode="deporte"
                   data-kind="end"
                 >
-                  <option value="winfantasia-6912">Fin 1</option>
-                  <option value="bell-sound-370341">Fin 2</option>
+                  ${SOUND_OPTIONS}
                 </select>
+                <button
+                  type="button"
+                  class="px-2 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded"
+                  data-sound-preview
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 4.5v11l9-5.5-9-5.5z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -234,12 +366,19 @@ export function SettingsView() {
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 ${shadow} flex items-center justify-between gap-4">
         <div>
           <div class="font-medium">Notificaciones</div>
-          <div class="text-sm text-slate-400">Avisos cuando termine un intervalo</div>
+          <div class="text-sm text-slate-400">
+            Aviso cuando termine un intervalo o sesión
+          </div>
         </div>
-        <div class="text-xs px-2 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
-          Próximamente
-        </div>
+
+        <button
+          type="button"
+          data-notifications-toggle
+          class="px-3 py-1.5 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center gap-2"
+        >
+          <span data-notifications-icon>🔔</span>
+          <span class="text-xs" data-notifications-label>On</span>
+        </button>
       </div>
-    </div>
   `;
 }

@@ -25,6 +25,7 @@ import {
   timerState,
   startCountdownThenStartTimer,
 } from "./core/timerState.js";
+import { stopAllSounds } from "./core/sound.js";
 
 let lastAppliedMode = null;
 let circle = null;
@@ -845,6 +846,7 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
+  stopAllSounds(); 
   startTimer();
 });
 
@@ -853,6 +855,7 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
+  stopAllSounds(); 
   stopTimer();
 });
 
@@ -861,6 +864,7 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
+  stopAllSounds(); 
   resetTimer();
 });
 

@@ -66,10 +66,18 @@ const DEFAULT_SETTINGS = {
   notificationsEnabled: false,
   timeUnit: "minutes",
   sounds: {
-    trabajo: "chime-alert-demo-309545",
-    estudio: "bell-sound-370341",
-    deporte: "alarm-clock-90867",
-    finish: "winfantasia-6912", 
+    trabajo: {
+      start: "chime-alert-demo-309545",
+      end: "winfantasia-6912",
+    },
+    estudio: {
+      start: "bell-sound-370341",
+      end: "winfantasia-6912",
+    },
+    deporte: {
+      start: "alarm-clock-90867",
+      end: "winfantasia-6912",
+    }, 
     volume: 0.8,
     muted: false,
   },
