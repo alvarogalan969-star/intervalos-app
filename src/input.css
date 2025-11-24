@@ -83,6 +83,12 @@ body[data-theme="light"] {
   border-radius: 0.5rem;
 }
 
+.unit-selected {
+  background-color: #22c55e; /* verde tipo emerald */
+  color: #0f172a;            /* texto oscuro */
+  border-color: #22c55e;
+}
+
 .text-muted {
   color: var(--muted);
 }
