@@ -24,7 +24,7 @@ export function TimerView() {
 
   const presetName = currentPreset
     ? currentPreset.nombre
-    : "Sin preset seleccionado";
+    : "Sin rutina seleccionada";
 
   const displayTime =
     timerState.remainingMs > 0

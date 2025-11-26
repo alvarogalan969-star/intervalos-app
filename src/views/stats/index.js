@@ -119,21 +119,21 @@ export function StatsView() {
           <div class="p-4 rounded-xl preset-card preset-card-trabajo transition-transform duration-200 hover:-translate-y-0.5">
             <div class="preset-label preset-label-trabajo">Trabajo</div>
             <div class="text-base mt-1 font-mono">${formatMsToHuman(tTrabajo.totalMs)}</div>
-            <div class="text-[11px] text-muted">${tTrabajo.sessions} presets</div>
+            <div class="text-[11px] text-muted">${tTrabajo.sessions} Rutinas</div>
           </div>
 
           <!-- Estudio -->
           <div class="p-4 rounded-xl preset-card preset-card-estudio transition-transform duration-200 hover:-translate-y-0.5">
             <div class="preset-label preset-label-estudio">Estudio</div>
             <div class="text-base mt-1 font-mono">${formatMsToHuman(tEstudio.totalMs)}</div>
-            <div class="text-[11px] text-muted">${tEstudio.sessions} presets</div>
+            <div class="text-[11px] text-muted">${tEstudio.sessions} Rutinas</div>
           </div>
 
           <!-- Deporte -->
           <div class="p-4 rounded-xl preset-card preset-card-deporte transition-transform duration-200 hover:-translate-y-0.5">
             <div class="preset-label preset-label-deporte">Deporte</div>
             <div class="text-base mt-1 font-mono">${formatMsToHuman(tDeporte.totalMs)}</div>
-            <div class="text-[11px] text-muted">${tDeporte.sessions} presets</div>
+            <div class="text-[11px] text-muted">${tDeporte.sessions} Rutinas</div>
           </div>
 
         </div>
