@@ -67,16 +67,6 @@ function updateTimerMessageFromState() {
   el.textContent = timerState.statusMessage || "";
 }
 
-function handleIntervalChangeAnimation() {
-  const display = document.getElementById("timer-display");
-  if (!display) return;
-
-  display.classList.add("animate-pulse");
-  setTimeout(() => {
-    display.classList.remove("animate-pulse");
-  }, 300);
-}
-
 function syncActiveModeWithCurrentInterval() {
 
   let newMode;
@@ -202,6 +192,9 @@ function render() {
     setTimeout(() => {
       initSettingsView();
     }, 0);
+    setTimeout(() => {
+      updateThemeIcon();
+    }, 10);
   }
 }
 
@@ -384,6 +377,22 @@ chart.setOption({
   window.addEventListener("resize", () => {
     chart.resize();
   });
+}
+
+function updateThemeIcon() {
+  const sun = document.getElementById("icon-sun");
+  const moon = document.getElementById("icon-moon");
+  if (!sun || !moon) return;
+
+  const theme = document.body.dataset.theme || "dark";
+
+  if (theme === "light") {
+    sun.classList.remove("hidden");
+    moon.classList.add("hidden");
+  } else {
+    moon.classList.remove("hidden");
+    sun.classList.add("hidden");
+  }
 }
 
 export function navigate(path) {
@@ -929,5 +938,18 @@ document.addEventListener("click", (event) => {
 
   resetStats();
   navigate("/stats"); // recarga la vista con todo a cero
+});
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#theme-toggle");
+  if (!btn) return;
+
+  event.preventDefault();
+
+  const current = document.body.dataset.theme || "dark";
+  const next = current === "dark" ? "light" : "dark";
+
+  updateTheme(next);
+  updateThemeIcon();
 });
 

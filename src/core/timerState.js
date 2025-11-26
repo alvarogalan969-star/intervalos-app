@@ -8,9 +8,40 @@ import {
 import { playSound } from "./sound.js";
 import { showNotification } from "./notifications.js";
 
-const TICK_MS = 1000;
-
 const listeners = [];
+
+let tickId = null;
+
+function scheduleTick() {
+  if (tickId) return;
+  tickId = setInterval(tick, 1000); // 1 vez por segundo
+}
+
+function clearTick() {
+  if (!tickId) return;
+  clearInterval(tickId);
+  tickId = null;
+}
+
+function tick() {
+  if (timerState.status !== "running" || timerState.endTimestamp == null) {
+    return;
+  }
+
+  const now = Date.now();
+  const remaining = timerState.endTimestamp - now;
+
+  timerState.remainingMs = Math.max(remaining, 0);
+
+  if (remaining <= 0) {
+    timerState.remainingMs = 0;
+    clearTick();
+    goToNextIntervalOrFinish(); // esta función ya la tienes más abajo
+    return;
+  }
+
+  notifyTimerListeners();
+}
 
 export function subscribeToTimer(listener) {
   listeners.push(listener);
@@ -86,17 +117,19 @@ function recordSessionStats() {
 }
 
 export const timerState = {
-  currentPresetId: null,      // id del preset en uso
-  intervals: [],              // lista de intervalos del preset
-  currentIntervalIndex: 0,    // posición del intervalo actual
-  remainingMs: 0,             // tiempo restante en milisegundos
-  status: "idle",             // 'idle' | 'running' | 'paused' | 'finished'
-  timerId: null,
-  baseMode: null,
+  currentPresetId: null,
+  intervals: [],
+  currentIntervalIndex: 0,
+  remainingMs: 0,
+  status: "idle",
+  endTimestamp: null,
+  pausedAt: null,
+  baseMode: null,        // ya lo usas en otros sitios
   statusMessage: "",
   countdownActive: false,
   countdownValue: 0,
   countdownTimerId: null,
+  originalTotalMs: 0,
 };
 
 export function loadPresetToTimer(presetId) {
@@ -138,6 +171,8 @@ export function loadPresetToTimer(presetId) {
   timerState.status = "idle";
   timerState.statusMessage = "Pulsa Start para comenzar.";
   notifyTimerListeners();
+
+  timerState.endTimestamp = null;
 }
 
 function getCurrentInterval() {
@@ -187,11 +222,6 @@ function goToNextIntervalOrFinish() {
       );
     }
 
-    if (timerState.timerId) {
-      clearInterval(timerState.timerId);
-      timerState.timerId = null;
-    }
-
     if (typeof confetti === "function") {
       confetti({
         particleCount: 200,
@@ -221,7 +251,9 @@ function goToNextIntervalOrFinish() {
     stats.modes[mode].sessions += 1;
 
     saveStats(stats);
+    clearTick();
 
+    timerState.endTimestamp = null;
     timerState.status = "finished";
     timerState.remainingMs = 0;
     timerState.intervals = [];
@@ -256,12 +288,10 @@ function goToNextIntervalOrFinish() {
     );
   }
 
-  if (timerState.timerId) {
-    clearInterval(timerState.timerId);
-    timerState.timerId = null;
-  }
+  clearTick();
 
   resetRemainingFromCurrentInterval();
+  timerState.endTimestamp = null;
   timerState.status = "paused";
   timerState.statusMessage =
     "Intervalo completado. Pulsa Start para continuar.";
@@ -270,7 +300,6 @@ function goToNextIntervalOrFinish() {
 
 
 export function startTimer() {
-  // Si ya está corriendo, no hacemos nada
   if (timerState.status === "running") return;
 
   if (!timerState.intervals || timerState.intervals.length === 0) {
@@ -279,74 +308,54 @@ export function startTimer() {
     return;
   }
 
-  // Si no hay intervalo actual, salimos
   const current = getCurrentInterval();
   if (!current) {
     console.warn("No hay intervalo actual");
     return;
   }
 
-  // Si el tiempo restante es 0, reiniciamos desde el intervalo actual
+  // Si el tiempo restante es 0 (primer inicio o hemos llegado a 0)
   if (timerState.remainingMs <= 0) {
     resetRemainingFromCurrentInterval();
   }
 
+  const now = Date.now();
+  timerState.endTimestamp = now + timerState.remainingMs;
   timerState.status = "running";
   timerState.statusMessage = "";
 
-  // Por si hubiera un intervalo anterior
-  if (timerState.timerId) {
-    clearInterval(timerState.timerId);
-  }
-
-  timerState.timerId = setInterval(() => {
-    timerState.remainingMs -= TICK_MS;
-
-    if (timerState.remainingMs <= 0) {
-      timerState.remainingMs = 0;
-      goToNextIntervalOrFinish();
-      return;
-    }
-
-    notifyTimerListeners();
-  }, TICK_MS);
+  scheduleTick();
+  notifyTimerListeners();
 }
-
 
 export function stopTimer() {
   if (!timerState.intervals || timerState.intervals.length === 0) {
-    // No hay preset → ningún mensaje
     timerState.statusMessage = "Selecciona un preset para comenzar.";
     notifyTimerListeners();
     return;
   }
 
-  if (timerState.timerId) {
-    clearInterval(timerState.timerId);
-    timerState.timerId = null;
-  }
+  clearTick();
 
   timerState.status = "paused";
+  timerState.endTimestamp = null;
   timerState.statusMessage = "Pausado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
 
 export function resetTimer() {
   if (!timerState.intervals || timerState.intervals.length === 0) {
-    // No hay preset → ningún mensaje
     timerState.statusMessage = "Selecciona un preset para comenzar.";
     notifyTimerListeners();
     return;
   }
-  // Paramos si estaba activo
-  if (timerState.timerId) {
-    clearInterval(timerState.timerId);
-    timerState.timerId = null;
-  }
+
+  clearTick();
 
   timerState.currentIntervalIndex = 0;
   resetRemainingFromCurrentInterval();
   timerState.status = "idle";
+  timerState.endTimestamp = null;
   timerState.statusMessage = "Timer reseteado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
