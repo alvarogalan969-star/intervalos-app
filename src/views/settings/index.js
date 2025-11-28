@@ -15,6 +15,22 @@ const SOUND_OPTIONS = `
   <option value="wow-423653">wow-423653</option>
 `;
 
+function updateRepeatButtonUI(button, isOn) {
+  if (isOn) {
+    button.textContent = "ON";
+    button.classList.remove("bg-slate-800", "text-slate-300");
+    button.classList.add(
+      "bg-emerald-500",
+      "text-slate-300",
+      "border-emerald-400"
+    );
+  } else {
+    button.textContent = "OFF";
+    button.classList.remove("bg-emerald-500", "text-slate-300", "border-emerald-400");
+    button.classList.add("bg-slate-800", "text-slate-300");
+  }
+}
+
 export function initSettingsView() {
   // --- Collapse (ya lo tienes) ---
   const panel = document.querySelector("[data-sound-panel]");
@@ -152,6 +168,26 @@ export function initSettingsView() {
     });
   }
 
+  const repeatBtn = document.querySelector(
+    '[data-setting="repeatIntervalSound"]'
+  );
+
+  if (repeatBtn) {
+    // estado inicial
+    updateRepeatButtonUI(repeatBtn, settings.repeatIntervalSound);
+
+    repeatBtn.addEventListener("click", () => {
+      const current = getSettings();
+      const next = !current.repeatIntervalSound;
+
+      saveSettings({
+        ...current,
+        repeatIntervalSound: next,
+      });
+
+      updateRepeatButtonUI(repeatBtn, next);
+    });
+  }
 }
 
 export function SettingsView() {
@@ -165,7 +201,8 @@ export function SettingsView() {
       <!-- Tema -->
       <div class="p-4 rounded-xl card ${shadow} flex items-center justify-between gap-4">
         <div>
-          <div class="font-medium">Tema</div>
+          <div class="text-sm font-medium">Tema</div>
+          <div class="text-xs text-slate-400">Claro u oscuro</div>
         </div>
 
         <button
@@ -199,8 +236,8 @@ export function SettingsView() {
           <!-- Luna -->
           <svg
             id="icon-moon"
-            width="30"
-            height="30"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -212,15 +249,16 @@ export function SettingsView() {
             <path d="M21 12.79A7 7 0 0 1 12.21 4
                     5.5 5.5 0 1 0 21 12.79z" />
           </svg>
-
         </button>
       </div>
 
       <!-- Sonido (collapse) -->
       <details class="p-4 rounded-xl card ${shadow} group">
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-
-          <div class="font-medium">Sonido</div>
+        <summary class="flex items-center justify-between cursor-pointer list-none gap-4">
+          <div>
+            <div class="text-sm font-medium">Sonido</div>
+            <div class="text-xs text-slate-400">Volumen y sonidos por modo</div>
+          </div>
 
           <div class="flex items-center gap-3">
             <!-- Volumen global -->
@@ -236,7 +274,7 @@ export function SettingsView() {
             <!-- Mute global -->
             <button
               type="button"
-              class="px-2 py-1 text-sm btn-secondary rounded"
+              class="px-2 py-1 text-xs rounded-lg btn-secondary"
               data-sound-mute-toggle
             >
               🔊
@@ -257,18 +295,17 @@ export function SettingsView() {
         </summary>
 
         <div class="overflow-hidden transition-all duration-500 max-h-0 group-open:max-h-[600px]">
-          <div class="mt-4 border-t border-slate-700 dark:border-slate-700 border-slate-200 pt-4 space-y-4">
-            <div class="text-sm text-muted">
+          <div class="mt-4 border-t border-slate-700 pt-4 space-y-4">
+            <div class="text-sm text-slate-400">
               Sonidos por modo (inicio y fin)
             </div>
 
             ${["trabajo", "estudio", "deporte"]
               .map(
                 (modo) => `
-              <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="font-medium text-sm capitalize">${modo}</div>
                 <div class="flex flex-wrap gap-2">
-                  
                   <select
                     class="input-base text-sm px-2 py-1 rounded"
                     data-sound-select
@@ -280,7 +317,7 @@ export function SettingsView() {
 
                   <button
                     type="button"
-                    class="px-2 py-1 text-sm btn-secondary rounded"
+                    class="px-2 py-1 text-xs btn-secondary rounded flex items-center justify-center"
                     data-sound-preview
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -299,19 +336,36 @@ export function SettingsView() {
 
                   <button
                     type="button"
-                    class="px-2 py-1 text-sm btn-secondary rounded"
+                    class="px-2 py-1 text-xs btn-secondary rounded flex items-center justify-center"
                     data-sound-preview
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M6 4.5v11l9-5.5-9-5.5z" />
                     </svg>
                   </button>
-
                 </div>
               </div>
             `
               )
-              .join("")}
+              .join("")
+            }
+
+            <div class="mt-6 flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium">Repetir sonido</div>
+                <div class="text-xs text-slate-400">
+                  Mantener el sonido hasta pulsar un botón del timer
+                </div>
+              </div>
+
+              <button
+                type="button"
+                data-setting="repeatIntervalSound"
+                class="w-14 h-7 flex items-center justify-center rounded-full border border-slate-500/60 text-xs font-semibold bg-slate-800 text-slate-300"
+              >
+                OFF
+              </button>
+            </div>
 
           </div>
         </div>
@@ -320,13 +374,16 @@ export function SettingsView() {
       <!-- Notificaciones -->
       <div class="p-4 rounded-xl card ${shadow} flex items-center justify-between gap-4">
         <div>
-          <div class="font-medium">Notificaciones</div>
+          <div class="text-sm font-medium">Notificaciones</div>
+          <div class="text-xs text-slate-400">
+            Avisos al terminar intervalos y rutinas
+          </div>
         </div>
 
         <button
           type="button"
           data-notifications-toggle
-          class="px-3 py-1.5 text-sm rounded-lg btn-secondary flex items-center gap-2"
+          class="px-3 py-1.5 text-xs rounded-lg btn-secondary flex items-center gap-2"
         >
           <span data-notifications-icon>🔔</span>
           <span class="text-xs" data-notifications-label>On</span>

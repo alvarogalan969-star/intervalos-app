@@ -4,7 +4,7 @@ export function EditPresetView({ id }) {
   const preset = getPresetById(id);
 
   if (!preset) {
-    return `<p class="text-red-400 text-sm">Preset no encontrado.</p>`;
+    return `<p class="text-red-400 text-sm">Rutina no encontrada.</p>`;
   }
 
   const intervalos = preset.intervalos || [];
@@ -105,7 +105,7 @@ export function EditPresetView({ id }) {
 
   return `
     <div class="space-y-6 max-w-md mx-auto">
-      <h1 class="text-2xl font-semibold text-center">Editar preset</h1>
+      <h1 class="text-2xl font-semibold text-center">Editar rutina</h1>
 
       <form data-form="edit-preset" class="space-y-5">
 
@@ -147,7 +147,7 @@ export function EditPresetView({ id }) {
 
         <!-- Tipo de preset -->
         <div class="space-y-1">
-          <label class="text-sm text-muted">Tipo de preset</label>
+          <label class="text-sm text-muted">Tipo de rutina</label>
 
           <input type="hidden" name="interval-mode" value="${intervalMode}" />
 
@@ -216,7 +216,7 @@ export function EditPresetView({ id }) {
           id="delete-preset"
           class="w-full px-4 py-2 rounded-lg bg-red-600/80 hover:bg-red-500 text-slate-50 font-semibold"
         >
-          Eliminar preset
+          Eliminar rutina
         </button>
       </form>
     </div>

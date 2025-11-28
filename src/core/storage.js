@@ -79,6 +79,7 @@ const DEFAULT_SETTINGS = {
     }, 
     volume: 0.8,
     muted: false,
+    repeatIntervalSound: false,
   },
 };
 

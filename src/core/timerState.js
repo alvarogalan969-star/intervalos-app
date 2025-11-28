@@ -11,10 +11,11 @@ import { showNotification } from "./notifications.js";
 const listeners = [];
 
 let tickId = null;
+let repeatSoundLoopId = null;
 
 function scheduleTick() {
   if (tickId) return;
-  tickId = setInterval(tick, 1000); // 1 vez por segundo
+  tickId = setInterval(tick, 100); // 1 vez por segundo
 }
 
 function clearTick() {
@@ -116,6 +117,27 @@ function recordSessionStats() {
   saveStats(stats);
 }
 
+function startRepeatSoundLoop(soundKey) {
+  stopRepeatSoundLoop();
+
+  const settings = getSettings();
+  if (!settings.repeatIntervalSound) return;
+  if (!soundKey) return;
+
+  // ya haces un playSound() al final del intervalo,
+  // aquí solo dejamos el loop cada 3s
+  repeatSoundLoopId = setInterval(() => {
+    playSound(soundKey);
+  }, 3000);
+}
+
+function stopRepeatSoundLoop() {
+  if (repeatSoundLoopId) {
+    clearInterval(repeatSoundLoopId);
+    repeatSoundLoopId = null;
+  }
+}
+
 export const timerState = {
   currentPresetId: null,
   intervals: [],
@@ -204,6 +226,8 @@ function resetRemainingFromCurrentInterval() {
 function goToNextIntervalOrFinish() {
   const settings = getSettings();
 
+  stopRepeatSoundLoop();
+
   // avanzar al siguiente intervalo
   timerState.currentIntervalIndex += 1;
 
@@ -273,7 +297,14 @@ function goToNextIntervalOrFinish() {
         : next.modo;
 
     const startSound = settings.sounds[modeForNext]?.start;
-    if (startSound) playSound(startSound);
+    if (startSound) {
+      playSound(startSound);
+
+      // aquí SÍ podemos repetir en bucle hasta que pulse un botón
+      if (settings.repeatIntervalSound) {
+        startRepeatSoundLoop(startSound);
+      }
+    }
   }
 
   const prevIndex = timerState.currentIntervalIndex - 1;
@@ -297,7 +328,6 @@ function goToNextIntervalOrFinish() {
     "Intervalo completado. Pulsa Start para continuar.";
   notifyTimerListeners();
 }
-
 
 export function startTimer() {
   if (timerState.status === "running") return;
@@ -325,6 +355,7 @@ export function startTimer() {
   timerState.statusMessage = "";
 
   scheduleTick();
+  stopRepeatSoundLoop();
   notifyTimerListeners();
 }
 
@@ -340,6 +371,7 @@ export function stopTimer() {
   timerState.status = "paused";
   timerState.endTimestamp = null;
   timerState.statusMessage = "Pausado. Pulsa Start para continuar.";
+  stopRepeatSoundLoop();
   notifyTimerListeners();
 }
 
@@ -357,6 +389,7 @@ export function resetTimer() {
   timerState.status = "idle";
   timerState.endTimestamp = null;
   timerState.statusMessage = "Timer reseteado. Pulsa Start para continuar.";
+  stopRepeatSoundLoop();
   notifyTimerListeners();
 }
 
