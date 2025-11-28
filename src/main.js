@@ -35,6 +35,7 @@ let lastCountdownValue = timerState.countdownValue ?? 0;
 let displayStartAt = null;
 let displayStartSeconds = null;
 let lastDisplaySeconds = null;
+let lastPulseSeconds = null; 
 
 function updateTimerCircleFromState() {
   if (!circle) return;
@@ -146,14 +147,6 @@ function updateTimerDisplayFromState() {
     String(minutes).padStart(2, "0") +
     ":" +
     String(secs).padStart(2, "0");
-
-  // (opcional) animación de sombra solo cuando cambia el segundo
-  if (timerState.status === "running") {
-    if (lastDisplaySeconds !== seconds) {
-      animateShadowBeat();
-      lastDisplaySeconds = seconds;
-    }
-  }
 }
 
 subscribeToTimer(() => {
@@ -176,6 +169,20 @@ subscribeToTimer(() => {
   updateTimerCircleFromState();
   updateTimerCircleColor();
   updateTabTitle();
+
+  if (timerState.status === "running") {
+    const sec = Math.max(
+      0,
+      Math.round(timerState.remainingMs / 1000)
+    );
+
+    if (sec !== lastPulseSeconds) {
+      animateShadowBeat();
+      lastPulseSeconds = sec;
+    }
+  } else {
+    lastPulseSeconds = null;
+  }
 
   if (intervalChanged || countdownActiveChanged || countdownValueChanged) {
     render();
@@ -955,6 +962,7 @@ document.addEventListener("click", (event) => {
   displayStartAt = Date.now();
   displayStartSeconds = secs;
   lastDisplaySeconds = null;
+  lastPulseSeconds = null;
 
   startTimer();
 });
