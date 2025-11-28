@@ -32,6 +32,9 @@ let circle = null;
 let lastIntervalIndex = timerState.currentIntervalIndex ?? 0;
 let lastCountdownActive = timerState.countdownActive ?? false;
 let lastCountdownValue = timerState.countdownValue ?? 0;
+let displayStartAt = null;
+let displayStartSeconds = null;
+let lastDisplaySeconds = null;
 
 function updateTimerCircleFromState() {
   if (!circle) return;
@@ -113,7 +116,44 @@ function updateTimerDisplayFromState() {
   const display = document.getElementById("timer-display");
   if (!display) return;
 
-  display.textContent = formatMsToMMSS(timerState.remainingMs);
+  let seconds;
+
+  if (
+    timerState.status === "running" &&
+    displayStartAt != null &&
+    displayStartSeconds != null
+  ) {
+    const elapsedMs = Date.now() - displayStartAt;
+    const elapsedSec = Math.floor(elapsedMs / 1000);
+    seconds = Math.max(0, displayStartSeconds - elapsedSec);
+  } else {
+    // idle/paused/finished → usamos remainingMs tal cual
+    seconds = Math.max(
+      0,
+      Math.round(timerState.remainingMs / 1000)
+    );
+
+    // si no está corriendo, reseteamos el origen visual
+    displayStartAt = null;
+    displayStartSeconds = null;
+    lastDisplaySeconds = null;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  display.textContent =
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(secs).padStart(2, "0");
+
+  // (opcional) animación de sombra solo cuando cambia el segundo
+  if (timerState.status === "running") {
+    if (lastDisplaySeconds !== seconds) {
+      animateShadowBeat();
+      lastDisplaySeconds = seconds;
+    }
+  }
 }
 
 subscribeToTimer(() => {
@@ -135,13 +175,10 @@ subscribeToTimer(() => {
   syncActiveModeWithCurrentInterval();
   updateTimerCircleFromState();
   updateTimerCircleColor();
+  updateTabTitle();
 
   if (intervalChanged || countdownActiveChanged || countdownValueChanged) {
     render();
-  }
-
-  if (timerState.status === "running") {
-    animateShadowBeat();
   }
 });
 
@@ -392,6 +429,19 @@ function updateThemeIcon() {
   } else {
     moon.classList.remove("hidden");
     sun.classList.add("hidden");
+  }
+}
+
+function updateTabTitle() {
+  if (timerState.status === "running") {
+    const ms = timerState.remainingMs;
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+
+    document.title = `${minutes}:${seconds} — Intervalos`;
+  } else {
+    document.title = "Intervalos";
   }
 }
 
@@ -894,7 +944,18 @@ document.addEventListener("click", (event) => {
   if (!btn) return;
 
   event.preventDefault();
-  stopAllSounds(); 
+  stopAllSounds();
+
+  // segundos que quedan en el momento de pulsar Start
+  const secs = Math.max(
+    0,
+    Math.round(timerState.remainingMs / 1000)
+  );
+
+  displayStartAt = Date.now();
+  displayStartSeconds = secs;
+  lastDisplaySeconds = null;
+
   startTimer();
 });
 

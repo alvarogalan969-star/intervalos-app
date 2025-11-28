@@ -4,7 +4,10 @@ import { getPresets } from "../../core/storage.js";
 import { timerState } from "../../core/timerState.js";
 
 function formatMsToMMSS(ms) {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const totalSeconds = ms > 0
+    ? Math.ceil(ms / 1000)
+    : 0;
+
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
 
