@@ -157,21 +157,28 @@ export function TimerView() {
             id="timer-start"
             class="px-4 py-2 rounded-lg text-sm font-medium ${bg} ${shadow} transition-colors duration-300 w-full sm:w-auto"
           >
-            Start
+            Empezar
           </button>
 
           <button
             id="timer-stop"
             class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 w-full sm:w-auto"
           >
-            Stop
+            Parar
+          </button>
+
+          <button
+            id="timer-next"
+            class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 w-full sm:w-auto"
+          >
+            Siguiente
           </button>
 
           <button
             id="timer-reset"
             class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 w-full sm:w-auto"
           >
-            Reset
+            Reiniciar
           </button>
         </div>
       </div>

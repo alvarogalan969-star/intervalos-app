@@ -31,6 +31,18 @@ function updateRepeatButtonUI(button, isOn) {
   }
 }
 
+function updateAutoAdvanceButtonUI(button, isOn) {
+  if (isOn) {
+    button.textContent = "ON";
+    button.classList.remove("bg-slate-800");
+    button.classList.add("bg-emerald-500", "border-emerald-400");
+  } else {
+    button.textContent = "OFF";
+    button.classList.remove("bg-emerald-500", "text-slate-900", "border-emerald-400");
+    button.classList.add("bg-slate-800", "text-slate-300");
+  }
+}
+
 export function initSettingsView() {
   // --- Collapse (ya lo tienes) ---
   const panel = document.querySelector("[data-sound-panel]");
@@ -186,6 +198,26 @@ export function initSettingsView() {
       });
 
       updateRepeatButtonUI(repeatBtn, next);
+    });
+  }
+
+  const autoBtn = document.querySelector(
+    '[data-setting="autoAdvanceIntervals"]'
+  );
+
+  if (autoBtn) {
+    updateAutoAdvanceButtonUI(autoBtn, settings.autoAdvanceIntervals);
+
+    autoBtn.addEventListener("click", () => {
+      const current = getSettings();
+      const next = !current.autoAdvanceIntervals;
+
+      saveSettings({
+        ...current,
+        autoAdvanceIntervals: next,
+      });
+
+      updateAutoAdvanceButtonUI(autoBtn, next);
     });
   }
 }
@@ -361,7 +393,7 @@ export function SettingsView() {
               <button
                 type="button"
                 data-setting="repeatIntervalSound"
-                class="w-14 h-7 flex items-center justify-center rounded-full border border-slate-500/60 text-xs font-semibold bg-slate-800 text-slate-300"
+                class="toggle-btn w-14 h-7 flex items-center justify-center rounded-full border border-slate-500/60 text-xs font-semibold bg-slate-800 text-slate-300"
               >
                 OFF
               </button>
@@ -387,6 +419,24 @@ export function SettingsView() {
         >
           <span data-notifications-icon>🔔</span>
           <span class="text-xs" data-notifications-label>On</span>
+        </button>
+      </div>
+
+      <!-- Avance automático -->
+      <div class="p-4 rounded-xl card ${shadow} flex items-center justify-between gap-4">
+        <div>
+          <div class="text-sm font-medium">Avance automático</div>
+          <div class="text-xs text-slate-400">
+            Pasar al siguiente intervalo sin pulsar Empezar
+          </div>
+        </div>
+
+        <button
+          type="button"
+          data-setting="autoAdvanceIntervals"
+          class="toggle-btn w-14 h-7 flex items-center justify-center rounded-full border border-slate-500/60 text-xs font-semibold bg-slate-800 text-slate-300"
+        >
+          OFF
         </button>
       </div>
 

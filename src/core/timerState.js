@@ -44,6 +44,26 @@ function tick() {
   notifyTimerListeners();
 }
 
+function skipToNextIntervalInternal() {
+  if (!timerState.intervals || timerState.intervals.length === 0) return;
+
+  // cancelar cuenta atrás si la hubiera
+  if (timerState.countdownTimerId) {
+    clearInterval(timerState.countdownTimerId);
+    timerState.countdownTimerId = null;
+    timerState.countdownActive = false;
+    timerState.countdownValue = 0;
+  }
+
+  // forzamos fin del intervalo actual
+  timerState.remainingMs = 0;
+  goToNextIntervalOrFinish();
+}
+
+export function skipToNextInterval() {
+  skipToNextIntervalInternal();
+}
+
 export function subscribeToTimer(listener) {
   listeners.push(listener);
 }
@@ -285,6 +305,9 @@ function goToNextIntervalOrFinish() {
 
     timerState.statusMessage = "Preset completado.";
     notifyTimerListeners();
+
+    document.dispatchEvent(new CustomEvent("presetFinished"));
+
     return;
   }
 
@@ -301,7 +324,7 @@ function goToNextIntervalOrFinish() {
       playSound(startSound);
 
       // aquí SÍ podemos repetir en bucle hasta que pulse un botón
-      if (settings.repeatIntervalSound) {
+      if (settings.repeatIntervalSound && !settings.autoAdvanceIntervals) {
         startRepeatSoundLoop(startSound);
       }
     }
@@ -323,10 +346,23 @@ function goToNextIntervalOrFinish() {
 
   resetRemainingFromCurrentInterval();
   timerState.endTimestamp = null;
-  timerState.status = "paused";
-  timerState.statusMessage =
-    "Intervalo completado. Pulsa Start para continuar.";
-  notifyTimerListeners();
+
+  if (settings.autoAdvanceIntervals) {
+    // seguir automáticamente con el siguiente intervalo
+    timerState.status = "running";
+    timerState.statusMessage = "";
+
+    const now = Date.now();
+    timerState.endTimestamp = now + timerState.remainingMs;
+    scheduleTick();
+  } else {
+    // comportamiento actual: se queda pausado esperando Start
+    timerState.status = "paused";
+    timerState.statusMessage =
+      "Intervalo completado. Pulsa Start para continuar.";
+  }
+
+  notifyTimerListeners();;
 }
 
 export function startTimer() {

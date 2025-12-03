@@ -24,6 +24,7 @@ import {
   subscribeToTimer,
   timerState,
   startCountdownThenStartTimer,
+  skipToNextInterval,
 } from "./core/timerState.js";
 import { stopAllSounds } from "./core/sound.js";
 
@@ -465,7 +466,13 @@ window.addEventListener("popstate", render);
 
 window.addEventListener("load", () => {
   applyInitialTheme();
-  render();
+  if (window.location.pathname === "/" || window.location.pathname === "/index.html") {
+    // si entran por la raíz, redirigimos a presets
+    navigate("/presets");
+  } else {
+    // si recargan /stats, /settings, etc, respetamos la ruta
+    render();
+  }
 });
 
 document.addEventListener("click", (event) => {
@@ -968,6 +975,15 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const btn = event.target.closest("#timer-next");
+  if (!btn) return;
+
+  event.preventDefault();
+  stopAllSounds();
+  skipToNextInterval();
+});
+
+document.addEventListener("click", (event) => {
   const btn = event.target.closest("#timer-stop");
   if (!btn) return;
 
@@ -1022,3 +1038,6 @@ document.addEventListener("click", (event) => {
   updateThemeIcon();
 });
 
+document.addEventListener("presetFinished", () => {
+  navigate("/presets");
+});
